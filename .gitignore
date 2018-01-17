@@ -1,0 +1,68 @@
+# C++ objects and libs
+
+*.slo
+*.lo
+*.o
+*.a
+*.la
+*.lai
+*.so
+*.dll
+*.dylib
+
+# Qt-es
+
+/.qmake.cache
+/.qmake.stash
+*.pro.user
+*.pro.user.*
+*.qbs.user
+*.qbs.user.*
+*.user
+*.moc
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+Makefile*
+*build-*
+
+# QtCreator
+
+*.autosave
+
+# QtCtreator Qml
+*.qmlproject.user
+*.qmlproject.user.*
+
+# QtCtreator CMake
+CMakeLists.txt.user*
+
+# VS2012
+*.log
+*.sdf
+*.pdb
+*.obj
+*.opensdf
+*.suo
+
+
+# LoggingTool_Manager
+LoggingTool_Manager/GeneratedFiles
+LoggingTool_Manager/Debug
+LoggingTool_Manager/Release
+LoggingTool_Manager/Temp
+LoggingTool_Manager/x64
+LoggingTool_Manager/Sequences_old
+LoggingTool_Manager/Win32
+LoggingTool_Manager/Old
+Win32
+
+DMDeconv/Debug
+DMDeconv/Release
+DMDeconv/ipch
+DMDeconv/DMDeconv/Debug
+DMDeconv/DMDeconv/Release
+
+*.ilk
+Impuls/

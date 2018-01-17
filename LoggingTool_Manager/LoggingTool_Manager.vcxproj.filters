@@ -1,0 +1,1133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}</UniqueIdentifier>
+      <Extensions>moc;h;cpp</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Debug">
+      <UniqueIdentifier>{df64e166-c8af-44b9-a7ff-ea92ce580def}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Generated Files\Release">
+      <UniqueIdentifier>{989e40cc-d3cd-46f9-a723-e6b2451856d0}</UniqueIdentifier>
+      <Extensions>cpp;moc</Extensions>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Form Files\Dialogs">
+      <UniqueIdentifier>{481fbac4-3563-4c4f-bef3-6ab12bf73983}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Form Files\Wizards">
+      <UniqueIdentifier>{98f5c9d9-8f92-45b1-ba5a-ada2496aceb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Common">
+      <UniqueIdentifier>{04c674fc-b53f-4100-8554-4596bdcf7239}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Communication">
+      <UniqueIdentifier>{4a51a2fd-0c3e-45ed-b61f-bb1758bfb1ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Dialogs">
+      <UniqueIdentifier>{9ad4e22f-d198-4100-8f67-666ed72d5f40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Galois">
+      <UniqueIdentifier>{4f956c49-7377-4a9d-a9a7-a463635a5746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\GraphClasses">
+      <UniqueIdentifier>{9097b8b3-d2ea-41a4-a418-7973c67cf328}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Wizards">
+      <UniqueIdentifier>{be84f64a-7854-41ab-8030-dcc8a2194416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Common">
+      <UniqueIdentifier>{44f2db99-8102-4301-9376-d183ea8d4794}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Communication">
+      <UniqueIdentifier>{2059de72-a9d0-4b5c-b05b-94f5418f876e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Dialogs">
+      <UniqueIdentifier>{bfa17d58-1030-4c5a-b56a-209a4825d1fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Galois">
+      <UniqueIdentifier>{d39c7426-741f-4c36-b530-52de2ac755af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\GraphClasses">
+      <UniqueIdentifier>{e693b58d-0d80-4d80-9323-4cddab74800a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Wizards">
+      <UniqueIdentifier>{92e54b2e-161d-433b-b624-4b2bb46ef63a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Form Files\GraphClasses">
+      <UniqueIdentifier>{a99682a9-69c6-4fe9-a321-520d7d3abba0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Form Files\Widgets">
+      <UniqueIdentifier>{84386ba5-f1fc-4613-b58b-79df5c82fd1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Widgets">
+      <UniqueIdentifier>{e533182e-14ac-44aa-a06d-d717069ee84c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Widgets">
+      <UniqueIdentifier>{2b1f9db9-a28a-4b57-a201-74b2b115c9dd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main_window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_main_window.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_main_window.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_settings_tree.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_settings_tree.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_message_processor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_message_processor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_axis_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_axis_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_comport_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_comport_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_curve_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_curve_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_info_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_info_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_plot_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_plot_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_view_code_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_view_code_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_graph_classes.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_graph_classes.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_message_log_monitor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_message_log_monitor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_nmrtool_connect_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_nmrtool_connect_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_sequence_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_sequence_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_icons.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\settings_tree.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication\message_processor.cpp">
+      <Filter>Source Files\Communication</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\axis_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\comport_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\curve_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\plot_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\view_code_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Galois\galua.cpp">
+      <Filter>Source Files\Galois</Filter>
+    </ClCompile>
+    <ClCompile Include="Galois\gf_data.cpp">
+      <Filter>Source Files\Galois</Filter>
+    </ClCompile>
+    <ClCompile Include="Galois\rscoding.cpp">
+      <Filter>Source Files\Galois</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphClasses\graph_classes.cpp">
+      <Filter>Source Files\GraphClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\message_log_monitor.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\nmrtool_connect_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\sequence_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_communication_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_communication_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\communication_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphClasses\plotted_objects.cpp">
+      <Filter>Source Files\GraphClasses</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_plotted_objects.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_plotted_objects.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_mark_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_mark_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\mark_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_export_settings_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_export_settings_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\export_settings_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\tcp_server_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_tcp_server_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_tcp_server_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_statusbar_widgets.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_statusbar_widgets.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\statusbar_widgets.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_tcp_data_manager.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_tcp_data_manager.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication\tcp_data_manager.cpp">
+      <Filter>Source Files\Communication</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\data_containers.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_monitoring_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_monitoring_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\depth_monitoring_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_about_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_about_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_nmrtool_status_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_nmrtool_status_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\nmrtool_status_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_sequence_info_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_sequence_info_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\rxtx_control_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rxtx_control_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rxtx_control_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\monitoring_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_monitoring_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_monitoring_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\processing_settings_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_processing_settings_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_processing_settings_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_export_toOil_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_export_toOil_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\export_toOil_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\profiler.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_rfpulse_control_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_rfpulse_control_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\rfpulse_control_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_server_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_server_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\depth_server_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_cdiag_server_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_cdiag_server_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\cdiag_server_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication\message_class.cpp">
+      <Filter>Source Files\Communication</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_scale_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_scale_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\depth_scale_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_sdsp_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_sdsp_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\sdsp_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_data_processing.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_data_processing.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\data_processing.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_tools_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_tools_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\tools_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_template_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_template_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\depth_template_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\logging_widget.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_logging_widget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_logging_widget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_emul_widget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_emul_widget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\depth_emul_widget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\depth_impulsustye_widget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_impulsustye_widget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_impulsustye_widget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\depth_internal_widget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_depth_internal_widget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_depth_internal_widget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="LUSI\LUSI.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_LUSI.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_LUSI.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_distance_meter_widget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_distance_meter_widget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Widgets\distance_meter_widget.cpp">
+      <Filter>Source Files\Widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\scheduler_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_scheduler_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_scheduler_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_experiment_scheduler.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_experiment_scheduler.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Common\experiment_scheduler.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\data_filename_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_data_filename_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_data_filename_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_freq_autoadjust_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_freq_autoadjust_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\freq_autoadjust_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_threads.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_threads.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Communication\threads.cpp">
+      <Filter>Source Files\Communication</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="main_window.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="main_window.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\axis_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\comport_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\curve_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\info_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\plot_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\view_code_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\message_log_monitor.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\nmrtool_connect_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\sequence_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="test1.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Common\settings_tree.h">
+      <Filter>Header Files\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Communication\message_processor.h">
+      <Filter>Header Files\Communication</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\axis_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\comport_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\curve_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\info_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\plot_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\view_code_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GraphClasses\graph_classes.h">
+      <Filter>Header Files\GraphClasses</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\message_log_monitor.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\nmrtool_connect_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\sequence_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="icons.qrc">
+      <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\communication_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\communication_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="GraphClasses\plotted_objects.h">
+      <Filter>Header Files\GraphClasses</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\mark_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\mark_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\incomdata_manager.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\export_settings_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\export_settings_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tcp_server_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tcp_server_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Common\statusbar_widgets.h">
+      <Filter>Header Files\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Communication\tcp_data_manager.h">
+      <Filter>Header Files\Communication</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\depth_monitoring_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\depth_monitoring_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\about_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\nmrtool_status_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\about_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\nmrtool_status_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\sequence_info_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\sequence_info_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\rxtx_control_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\rxtx_control_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\processing_settings_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\processing_settings_dialog_exp1.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\toOil_export_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\export_toOil_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\rfpulse_control_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\rfpulse_control_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\depth_server_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\depth_server_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\cdiag_server_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\cdiag_server_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\depth_scale_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\depth_scale_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\sdsp_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\sdsp_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Common\data_processing.h">
+      <Filter>Header Files\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tools_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tools_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\depth_template_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\depth_template_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\sdsp_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\logging_widget.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\logging_widget.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_emul_widget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_emul_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\abstract_depthmeter.h">
+      <Filter>Header Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_impulsustye_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_impulsustye_widget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_internal_widget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\depth_internal_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="LUSI\LUSI.h">
+      <Filter>Header Files\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\distance_meter_widget.h">
+      <Filter>Header Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\distance_meter_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\scheduler_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\scheduler_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Common\experiment_scheduler.h">
+      <Filter>Header Files\Common</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\data_filename_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\data_filename_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\freq_autoadjust_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\freq_autoadjust_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Communication\threads.h">
+      <Filter>Header Files\Communication</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GeneratedFiles\ui_main_window.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_axis_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_comport_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_curve_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_info_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_plot_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_view_code_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_message_log_monitor.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_nmrtool_connect_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_sequence_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_test1.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\app_settings.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="Galois\galua.h">
+      <Filter>Header Files\Galois</Filter>
+    </ClInclude>
+    <ClInclude Include="Galois\gf_data.h">
+      <Filter>Header Files\Galois</Filter>
+    </ClInclude>
+    <ClInclude Include="Galois\rscoding.h">
+      <Filter>Header Files\Galois</Filter>
+    </ClInclude>
+    <ClInclude Include="Galois\rscoding_common.h">
+      <Filter>Header Files\Galois</Filter>
+    </ClInclude>
+    <ClInclude Include="io_containers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="io_general.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tools_general.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_communication_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_mark_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_incomdata_manager.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_export_settings_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\experiment_settings.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_tcp_server_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\data_containers.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_monitoring_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_about_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_nmrtool_status_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_sequence_info_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_rxtx_control_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_monitoring_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_processing_settings_dialog_exp1.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_toOil_export_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Common\profiler.h">
+      <Filter>Header Files\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_rfpulse_control_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_server_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_cdiag_server_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Communication\message_class.h">
+      <Filter>Header Files\Communication</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_scale_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_sdsp_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_tools_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_template_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_sdsp_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_logging_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_emul_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_impulsustye_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_depth_internal_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_distance_meter_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_scheduler_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_data_filename_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_freq_autoadjust_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\add.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\apply.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\axis_bottom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\axis_left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\axis_right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\axis_settings.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\axis_top.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\cancel.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\check_blue.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\check_green.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\color.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\connect.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\curve.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\disconnect.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Eraser.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Green Ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\green_ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Grey Ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Help.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Orange Ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\pause.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\play.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\play_all.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\plot_settings.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Red Ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Refresh.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\remove.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\restore.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\save.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\save_pic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\scale_horizontal.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\scale_vertical.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\settings.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\settings2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\sizes.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\start.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\start_blue.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\start_green.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\stop.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\stop_all.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\stop_red.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\text_bold.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\text_color.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\text_italic.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\text_underline.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\Yellow Ball.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\grid_major.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\grid_minor.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\curve_settings.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\add_curve.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\add_func.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\view_text.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\add_script.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\DEC.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\HEX.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="images\refresh_list.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="sequence_commands.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
+</Project>

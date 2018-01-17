@@ -1,0 +1,101 @@
+// *********************** Sequence Wizard ***************************
+
+main.name = 'Standartd activation'
+main.author = 'Savinkov A.V.'
+main.description = "Стандартная активация. Последовательность Карра-Парселла-Мейбума-Гилла (КПМГ)"
+main.datetime = '25.03.2016 11:50'
+
+// ************************ Sections *********************************
+/* Section "Pulses" in Sequence Wizard */
+@section s_pulses = { "Pulses" }
+
+@parameter p_90 = { "Pi/2-Pulse", 2.5, min=1.0, max =  10.0, units='mks' }     // Pi/2-pulse
+p_90.comment = "Pi/2-pulse in CPMG sequence"
+p_90.formula = '10*p_90'
+p_90.exec(10*p_90~)
+
+@parameter p_180 = { "Pi-Pulse", 5.0, 1.0, 20.0, units='mks' }      // Pi-pulse
+p_180.comment = "Pi-pulse in CPMG sequence"
+p_180.formula = '10*p_180'
+p_180.exec(10*p_180~)
+
+s_pulses.append(p_90);
+s_pulses.append(p_180);
+
+
+/* Section "Delays" in Sequence Wizard */
+@section s_delays = { "Delays" }
+
+@parameter d_tau = { "Tau", 15.0, 10.0, 1000000, units='mks' }      // Tau delay between Pi/2 and Pi pulses
+d_tau.comment = "Delay between Pi/2-pulse and Pi-pulse in CPMG sequence"
+d_tau.formula = '10*d_tau'
+d_tau.exec(10*d_tau~)
+
+s_delays.append(d_tau);
+
+
+/* Section "Probe" in Sequence Wizard */
+@section s_probe = { "Probe" }
+
+@parameter p_probe = { "Probe Number", 1, 1, 3 }
+p_probe.uitype = "spinbox";
+p_probe.comment = "Number of NMR Probe";
+
+@parameter p_emul = { "Data Source", "Emulator|NMR Tool" }
+p_emul.comment = "Please, select the Source of NMR data"
+p_emul.uitype = "combobox"
+
+s_probe.append(p_probe);
+s_probe.append(p_emul);
+// *******************************************************************
+
+
+// ************** Sections of output parameters **********************
+@output o_out = { "Output" }
+
+@parameter o_cpmg = { "CPMG decay" }
+o_cpmg.comment = "Show CPMG decay ?";
+o_cpmg.uitype = "checkbox";
+
+o_out.append(o_cpmg);
+// *******************************************************************
+
+// *************************** Arguments *****************************
+function a_pack1_pts(N)
+{
+	var pts = new Array(N);
+	for (var i = 0; i < N; ++i) { pts[i] = 2 * d_tau~ * (i + 1) / 1000 }
+	return pts;
+}
+@argument a_pack1 = { "Time data for CPMG" }
+a_pack1.size = 100
+a_pack1.points = a_pack1_pts(a_pack1.size);
+
+// ************************** DSP Packages ***************************
+@proc package1 = { "CPMG data processing" }
+#begin(package1)
+	INS_NOISE_PROC1(3, 0, 1, 0, 0);
+	var noise_win_num = 10.0;
+	var echoes_num = 2;
+	INS_SGN_PROC3(8, 0, noise_win_num, echoes_num, noise_win_num*echoes_num, 2, 0, 1, 1, 1)
+	INS_CL_ST(0, 0)                            //<-|<-|<-|<-|<-| очистка указателя стека
+	INS_NO_OP(0, 0)
+#end
+// *******************************************************************
+
+var tx_adr = 0xFFFF
+var rx_adr = 0xEEFF
+var debug_adc = 1
+var tx_frq_ofs_hz = 125000
+
+// ************************** FPGA Program ***************************
+@comm fpga = { "FPGA program" }
+#begin(fpga)
+	COM_SWITCH_FRQ		p_probe~		          	// параметризуемая установка набора базовых частот
+	COM_SET_PA_ADDR		tx_adr                   	// адрес выбранного канала передающего тракта 
+	COM_SET_RCV_ADDR	rx_adr                   	// адрес выбранного канала приемного тракта
+	COM_TEST_CONF_WR	debug_adc                	// установка отладочного режима АЦП, если установлен соответствующий режим
+	COM_OFS01			tx_frq_ofs_hz            	// установка гетеродинной частоты передатчика
+	COM_OFS02			0,0 , 4
+#end
+// *******************************************************************

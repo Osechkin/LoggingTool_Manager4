@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="windowModality">
+   <enum>Qt::WindowModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/icons/images/icon_32_ТМ.png</normaloff>:/icons/images/icon_32_ТМ.png</iconset>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+       </font>
+      </property>
+      <property name="tabShape">
+       <enum>QTabWidget::Rounded</enum>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabLogging">
+       <attribute name="title">
+        <string>Logging</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabDataViewer">
+       <attribute name="title">
+        <string>Data Preview</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabOscilloscope">
+       <attribute name="title">
+        <string>Oscilloscope</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabSDSP">
+       <attribute name="title">
+        <string>SDSP</string>
+       </attribute>
+      </widget>
+      <widget class="QWidget" name="tabMonitoring">
+       <attribute name="title">
+        <string>Monitoring</string>
+       </attribute>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="a_Change_Tool"/>
+    <addaction name="separator"/>
+    <addaction name="a_COMPort"/>
+    <addaction name="a_Depthmeter_Connection"/>
+    <addaction name="a_StepMotor"/>
+    <addaction name="separator"/>
+    <addaction name="a_Communication"/>
+    <addaction name="a_TCP_Connection"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="a_LoggingToolConsole"/>
+    <addaction name="a_CommunicationLogMonitor"/>
+    <addaction name="a_SequenceWizard"/>
+    <addaction name="separator"/>
+    <addaction name="a_DepthMonitor"/>
+    <addaction name="a_RxTxControl"/>
+    <addaction name="a_LoggingToolStatus"/>
+    <addaction name="separator"/>
+    <addaction name="a_MainToolBar"/>
+   </widget>
+   <widget class="QMenu" name="menuSequencies">
+    <property name="title">
+     <string>Sequencies</string>
+    </property>
+    <widget class="QMenu" name="menuEmulation">
+     <property name="title">
+      <string>Test Sequencies</string>
+     </property>
+     <addaction name="a_CPMG_emul1"/>
+    </widget>
+    <addaction name="menuEmulation"/>
+   </widget>
+   <widget class="QMenu" name="menuService">
+    <property name="title">
+     <string>Service</string>
+    </property>
+    <addaction name="a_Processing"/>
+    <addaction name="a_toOil"/>
+    <addaction name="a_toFile"/>
+    <addaction name="a_DataFile_Settings"/>
+    <addaction name="separator"/>
+    <addaction name="a_SaveAllSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="a_About"/>
+   </widget>
+   <widget class="QMenu" name="menuActions">
+    <property name="title">
+     <string>Actions</string>
+    </property>
+    <addaction name="a_connect"/>
+    <addaction name="a_disconnect"/>
+    <addaction name="separator"/>
+    <addaction name="a_start"/>
+    <addaction name="a_stop"/>
+    <addaction name="a_start_sdsp"/>
+    <addaction name="a_stop_sdsp"/>
+    <addaction name="separator"/>
+    <addaction name="a_break"/>
+    <addaction name="separator"/>
+    <addaction name="a_reset_comm_settings"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSequencies"/>
+   <addaction name="menuService"/>
+   <addaction name="menuActions"/>
+   <addaction name="menuView"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBarMain">
+   <property name="windowTitle">
+    <string>Main Toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="toolBarSettings">
+   <property name="windowTitle">
+    <string>Info Toolbar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QToolBar" name="toolBarExperiment">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <action name="a_COMPort">
+   <property name="text">
+    <string>Logging Tool COM-Port Settings...</string>
+   </property>
+  </action>
+  <action name="a_SignalProc">
+   <property name="text">
+    <string>Signal Processing Wizard...</string>
+   </property>
+  </action>
+  <action name="a_Communication">
+   <property name="text">
+    <string>Logging Tool Communication...</string>
+   </property>
+  </action>
+  <action name="a_LoggingToolConsole">
+   <property name="text">
+    <string>Logging Tool Console</string>
+   </property>
+  </action>
+  <action name="a_CommunicationLogMonitor">
+   <property name="text">
+    <string>Communication Log Monitor</string>
+   </property>
+  </action>
+  <action name="a_SequenceWizard">
+   <property name="text">
+    <string>Sequence Wizard</string>
+   </property>
+  </action>
+  <action name="a_MainToolBar">
+   <property name="text">
+    <string>Main Tool Bar</string>
+   </property>
+  </action>
+  <action name="a_CPMG_emul1">
+   <property name="text">
+    <string>CPMG_1 (Spin Echo emulation)</string>
+   </property>
+  </action>
+  <action name="a_SaveAllSettings">
+   <property name="text">
+    <string>Save All Settings</string>
+   </property>
+  </action>
+  <action name="a_TCP_Connection">
+   <property name="text">
+    <string>TCP Server Settings...</string>
+   </property>
+  </action>
+  <action name="a_About">
+   <property name="text">
+    <string>About LoggingTool_Manager...</string>
+   </property>
+  </action>
+  <action name="a_LoggingToolStatus">
+   <property name="text">
+    <string>Logging Tool Status</string>
+   </property>
+  </action>
+  <action name="a_RxTxControl">
+   <property name="text">
+    <string>Rx/Tx Control</string>
+   </property>
+  </action>
+  <action name="a_DepthMonitor">
+   <property name="text">
+    <string>Depth Monitor</string>
+   </property>
+  </action>
+  <action name="a_Processing">
+   <property name="text">
+    <string>Processing Settings...</string>
+   </property>
+  </action>
+  <action name="a_toOil">
+   <property name="text">
+    <string>Export to Oil Software...</string>
+   </property>
+  </action>
+  <action name="a_TempMonitor">
+   <property name="text">
+    <string>Temperature Monitoring...</string>
+   </property>
+  </action>
+  <action name="a_Depthmeter_Connection">
+   <property name="text">
+    <string>Depth Meter COM-Port Settings... </string>
+   </property>
+  </action>
+  <action name="a_toFile">
+   <property name="text">
+    <string>Export to File...</string>
+   </property>
+  </action>
+  <action name="a_CDiag_Connection">
+   <property name="text">
+    <string>CDiag Server Settings...</string>
+   </property>
+  </action>
+  <action name="a_Change_Tool">
+   <property name="text">
+    <string>Change Logging Tool...</string>
+   </property>
+  </action>
+  <action name="a_StepMotor">
+   <property name="text">
+    <string>Step Motor COM-Port Settings...</string>
+   </property>
+  </action>
+  <action name="a_DataFile_Settings">
+   <property name="text">
+    <string>Data File Settings...</string>
+   </property>
+  </action>
+  <action name="a_connect">
+   <property name="text">
+    <string>Connect</string>
+   </property>
+  </action>
+  <action name="a_disconnect">
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="a_start">
+   <property name="text">
+    <string>Start </string>
+   </property>
+  </action>
+  <action name="a_stop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+  </action>
+  <action name="a_break">
+   <property name="text">
+    <string>Break all Actions</string>
+   </property>
+  </action>
+  <action name="a_reset_comm_settings">
+   <property name="text">
+    <string>Reset Communication Settings</string>
+   </property>
+  </action>
+  <action name="a_start_sdsp">
+   <property name="text">
+    <string>Start SDSP</string>
+   </property>
+  </action>
+  <action name="a_stop_sdsp">
+   <property name="text">
+    <string>Stop SDSP</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>

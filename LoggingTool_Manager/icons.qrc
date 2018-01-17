@@ -1,0 +1,107 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/add.png</file>
+        <file>images/apply.png</file>
+        <file>images/axis_bottom.png</file>
+        <file>images/axis_left.png</file>
+        <file>images/axis_right.png</file>
+        <file>images/axis_settings.png</file>
+        <file>images/axis_top.png</file>
+        <file>images/cancel.png</file>
+        <file>images/check_blue.png</file>
+        <file>images/check_green.png</file>
+        <file>images/color.png</file>
+        <file>images/connect.png</file>
+        <file>images/curve.png</file>
+        <file>images/disconnect.png</file>
+        <file>images/Eraser.png</file>
+        <file>images/Green Ball.png</file>
+        <file>images/green_ball.png</file>
+        <file>images/Grey Ball.png</file>
+        <file>images/Help.png</file>
+        <file>images/Orange Ball.png</file>
+        <file>images/pause.png</file>
+        <file>images/play.png</file>
+        <file>images/plot_settings.png</file>
+        <file>images/Red Ball.png</file>
+        <file>images/Refresh.png</file>
+        <file>images/remove.png</file>
+        <file>images/restore.png</file>
+        <file>images/save.png</file>
+        <file>images/save_pic.png</file>
+        <file>images/scale_horizontal.png</file>
+        <file>images/scale_vertical.png</file>
+        <file>images/settings.png</file>
+        <file>images/settings2.png</file>
+        <file>images/sizes.png</file>
+        <file>images/start.png</file>
+        <file>images/start_blue.png</file>
+        <file>images/start_green.png</file>
+        <file>images/stop_all.png</file>
+        <file>images/stop_red.png</file>
+        <file>images/text_bold.png</file>
+        <file>images/text_color.png</file>
+        <file>images/text_italic.png</file>
+        <file>images/text_underline.png</file>
+        <file>images/Yellow Ball.png</file>
+        <file>images/grid_major.png</file>
+        <file>images/grid_minor.png</file>
+        <file>images/curve_settings.png</file>
+        <file>images/add_curve.png</file>
+        <file>images/add_func.png</file>
+        <file>images/view_text.png</file>
+        <file>images/add_script.png</file>
+        <file>images/DEC.png</file>
+        <file>images/HEX.png</file>
+        <file>images/refresh_list.png</file>
+        <file>images/check_red.png</file>
+        <file>images/Export.png</file>
+        <file>images/record_button_red.png</file>
+        <file>images/record_button_darkgreen.png</file>
+        <file>images/record_button_green.png</file>
+        <file>images/List.png</file>
+        <file>images/scale_both.png</file>
+        <file>images/add_button.png</file>
+        <file>images/find_signal.png</file>
+        <file>images/export_data.png</file>
+        <file>images/axis_left_centerzero.png</file>
+        <file>images/axis_left_downzero.png</file>
+        <file>images/axis_left_minmax.png</file>
+        <file>images/play_red.png</file>
+        <file>images/stop.png</file>
+        <file>images/Info.png</file>
+        <file>images/zoom_in.png</file>
+        <file>images/zoom_out.png</file>
+        <file>images/zoom.png</file>
+        <file>images/axis_left_minmax_24.png</file>
+        <file>images/axis_left_centerzero_24.png</file>
+        <file>images/axis_left_downzero_24.png</file>
+        <file>images/scale_both_24.png</file>
+        <file>images/axis_settings_24.png</file>
+        <file>images/plot_settings_24.png</file>
+        <file>images/curve_settings_24.png</file>
+        <file>images/scale_depth.png</file>
+        <file>images/search_data_24.png</file>
+        <file>images/trash_all.png</file>
+        <file>images/minus.png</file>
+        <file>images/plus.png</file>
+        <file>images/save_settings.png</file>
+        <file>images/play_begin.png</file>
+        <file>images/play_end.png</file>
+        <file>images/play_back.png</file>
+        <file>images/open.png</file>
+    </qresource>
+    <qresource prefix="/text_files">
+        <file>sequence_datatypes.txt</file>
+        <file>sequence_instructions.txt</file>
+    </qresource>
+    <qresource prefix="/pictures">
+        <file>images/formula3.png</file>
+        <file>images/ia2.png</file>
+        <file>images/ia3.png</file>
+        <file>images/KMRK.png</file>
+    </qresource>
+    <qresource prefix="/icons">
+        <file>images/icon_32_ТМ.png</file>
+    </qresource>
+</RCC>
