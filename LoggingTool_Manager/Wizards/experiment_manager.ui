@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>383</width>
+    <width>345</width>
     <height>628</height>
    </rect>
   </property>
@@ -33,16 +33,19 @@
      </property>
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>2</number>
+       </property>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
          <property name="spacing">
-          <number>5</number>
+          <number>2</number>
          </property>
          <item>
           <widget class="QToolButton" name="tbtAdd">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -66,7 +69,7 @@
           <widget class="QToolButton" name="tbtRemove">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -97,7 +100,7 @@
           <widget class="QToolButton" name="tbtSave">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -157,6 +160,9 @@
      </widget>
      <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>2</number>
+       </property>
        <item>
         <widget class="Line" name="line">
          <property name="orientation">
@@ -170,7 +176,7 @@
           <widget class="QLabel" name="label_3">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="text">
@@ -182,7 +188,7 @@
           <widget class="QLineEdit" name="ledSeqName">
            <property name="font">
             <font>
-             <pointsize>10</pointsize>
+             <pointsize>9</pointsize>
             </font>
            </property>
            <property name="alignment">

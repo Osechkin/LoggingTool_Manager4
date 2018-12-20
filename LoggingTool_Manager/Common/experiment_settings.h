@@ -60,6 +60,24 @@ struct DataSave
 	bool to_save_all;			// записывать в файл все данные вне зависимости от того, совпадает их длина с ожидаемой или нет 
 };
 
+// атрибуты эксперимента, которые вводятся перед стартом эксперимента
+struct ExperimentSettings
+{
+	QString well_UID;
+	QString well_name;
+	QString field_name;
+	QString location;
+	QString province;
+	QString country;
+	QString service_company;
+	QString company;
+	QString oper;		// operator
+	QString tool;
+	QDate date;
+
+	bool dont_show_again;
+};
+
 
 //static QList<SeqCmdInfo> seq_cmd_index;
 //static QList<SeqInstrInfo> seq_instr_index;

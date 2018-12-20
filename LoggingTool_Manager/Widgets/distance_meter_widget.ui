@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>332</width>
-    <height>196</height>
+    <width>318</width>
+    <height>165</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,16 +15,19 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_3">
    <property name="leftMargin">
-    <number>3</number>
+    <number>1</number>
    </property>
    <property name="topMargin">
-    <number>3</number>
+    <number>1</number>
    </property>
    <property name="rightMargin">
-    <number>3</number>
+    <number>1</number>
    </property>
    <property name="bottomMargin">
-    <number>3</number>
+    <number>1</number>
+   </property>
+   <property name="spacing">
+    <number>1</number>
    </property>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
@@ -40,27 +43,40 @@
       <number>0</number>
      </property>
      <widget class="QWidget" name="tabControl">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
       <attribute name="title">
        <string>Control</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <property name="leftMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="topMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="rightMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
-       <property name="spacing">
+       <property name="horizontalSpacing">
         <number>4</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>1</number>
        </property>
        <item row="5" column="0" colspan="2">
         <widget class="QFrame" name="framePosControl">
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
          <property name="frameShape">
           <enum>QFrame::Box</enum>
          </property>
@@ -80,8 +96,8 @@
           <property name="bottomMargin">
            <number>3</number>
           </property>
-          <property name="verticalSpacing">
-           <number>5</number>
+          <property name="spacing">
+           <number>2</number>
           </property>
           <item row="0" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -204,6 +220,11 @@
                 <height>0</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -289,67 +310,7 @@
          </layout>
         </widget>
        </item>
-       <item row="0" column="0" rowspan="2" colspan="2">
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <item>
-          <widget class="QLabel" name="lblPosition">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Position:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="ledDistance">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="cboxDistance">
-           <property name="maximumSize">
-            <size>
-             <width>60</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item row="8" column="0" colspan="2">
+       <item row="7" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_7">
          <item>
           <widget class="QLabel" name="lblCoreDiameter">
@@ -434,12 +395,12 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>40</height>
+           <height>5</height>
           </size>
          </property>
         </spacer>
        </item>
-       <item row="10" column="0" colspan="2">
+       <item row="9" column="0" colspan="2">
         <widget class="QPushButton" name="pbtConnect">
          <property name="text">
           <string>Connect to Rock Movement System</string>
@@ -449,15 +410,68 @@
          </property>
         </widget>
        </item>
-       <item row="9" column="0" colspan="2">
-        <widget class="Line" name="line_4">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
+       <item row="0" column="0" rowspan="2" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QLabel" name="lblPosition">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Position:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ledDistance">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="readOnly">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cboxDistance">
+           <property name="maximumSize">
+            <size>
+             <width>60</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
-       <item row="7" column="0" colspan="2">
-        <widget class="Line" name="line_3">
+       <item row="8" column="0" colspan="2">
+        <widget class="Line" name="line_4">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -471,19 +485,22 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_6">
        <property name="leftMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="topMargin">
-        <number>3</number>
+        <number>1</number>
        </property>
        <property name="rightMargin">
-        <number>3</number>
+        <number>2</number>
        </property>
        <property name="bottomMargin">
-        <number>3</number>
+        <number>1</number>
        </property>
-       <property name="spacing">
-        <number>3</number>
+       <property name="horizontalSpacing">
+        <number>2</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>1</number>
        </property>
        <item row="3" column="0" colspan="2">
         <widget class="Line" name="line">
@@ -501,6 +518,12 @@
        </item>
        <item row="0" column="0" colspan="2">
         <layout class="QGridLayout" name="gridLayout_4">
+         <property name="horizontalSpacing">
+          <number>2</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="lblFrom">
            <property name="font">
@@ -627,8 +650,16 @@
             <property name="bottomMargin">
              <number>1</number>
             </property>
+            <property name="spacing">
+             <number>2</number>
+            </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_2">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;font color=darkblue&gt;cm&lt;/font&gt;</string>
               </property>
@@ -666,6 +697,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_3">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;font color=darkblue&gt;cm&lt;/font&gt;</string>
               </property>
@@ -703,6 +739,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label">
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;font color=darkblue&gt;cm&lt;/font&gt;</string>
               </property>
@@ -715,8 +756,19 @@
        </item>
        <item row="2" column="0" colspan="2">
         <layout class="QGridLayout" name="gridLayout_5">
+         <property name="horizontalSpacing">
+          <number>2</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>1</number>
+         </property>
          <item row="0" column="0">
           <widget class="QLabel" name="lblCalibrLen">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Length of Calibration Sample: </string>
            </property>
@@ -724,6 +776,11 @@
          </item>
          <item row="0" column="1">
           <widget class="QDoubleSpinBox" name="dsboxCalibrLength">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -764,6 +821,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_4">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;font color=darkblue&gt;cm&lt;/font&gt;</string>
               </property>
@@ -774,6 +836,11 @@
          </item>
          <item row="1" column="0">
           <widget class="QLabel" name="lblPorosity">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="text">
             <string>Porosity of Calibration Sample:</string>
            </property>
@@ -781,6 +848,11 @@
          </item>
          <item row="1" column="1">
           <widget class="QDoubleSpinBox" name="dsboxPorosity">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
@@ -821,6 +893,11 @@
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label_8">
+              <property name="font">
+               <font>
+                <pointsize>10</pointsize>
+               </font>
+              </property>
               <property name="text">
                <string>&lt;font color=darkblue&gt;% &lt;/font&gt;</string>
               </property>
@@ -834,7 +911,7 @@
        <item row="4" column="0" colspan="2">
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <property name="spacing">
-          <number>10</number>
+          <number>2</number>
          </property>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -906,6 +983,11 @@
               </property>
               <item row="0" column="0">
                <widget class="QLabel" name="label_6">
+                <property name="font">
+                 <font>
+                  <pointsize>9</pointsize>
+                 </font>
+                </property>
                 <property name="text">
                  <string>&lt;font color=darkblue&gt;cm&lt;/font&gt;</string>
                 </property>
@@ -946,6 +1028,11 @@
                <width>60</width>
                <height>16777215</height>
               </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>10</pointsize>
+              </font>
              </property>
              <property name="text">
               <string>Clear</string>

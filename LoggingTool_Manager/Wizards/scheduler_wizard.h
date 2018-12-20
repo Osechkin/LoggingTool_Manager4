@@ -50,6 +50,7 @@ public slots:
 
 	void setSeqStatus(unsigned char _seq_finished);		// информирует о завершении последовательности
 	void setSeqStarted(bool flag);						// свидетельствует об успехе / неуспехе старта последовательности
+	void setSeqFinished(bool flag);						// свидетельствует об успехе/неуспехе получения данных измерений // was added 5.07.2018
 
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
@@ -76,6 +77,8 @@ private slots:
 	void execute(Scheduler::SchedulerObject* obj);
 
 	void currentItemSelected(QModelIndex index1, QModelIndex index2);
+
+	void dataTimedOut();			// added 5.07.2018
 
 private:
 	Ui::SchedulerWizard *ui;
@@ -108,11 +111,14 @@ private:
 
 	bool seq_already_finished;		// флаг, свидетельствующий о том, что сигнал завершения последовательности уже принят и следующие такие сигналы игнорировать до успешного старта следующей последовательности 
 
+	QTimer timer;
+
 signals:
 	void finished();
 	void started();
 	void calibration_started();
 	void calibration_finished();
+	void new_msg_req_delay(int);	// added 5.07.2018 - новая задержка на ожидание отклика прибора на отправленное сообщение
 };
 
 #endif // SCHEDULER_WIZARD_H

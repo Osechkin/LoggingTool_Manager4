@@ -205,6 +205,8 @@ LoggingWidget::LoggingWidget(QVector<ToolChannel*> channels, QWidget *parent) : 
 	ui.tbtScaleOut_5->setIcon(QIcon(":/images/zoom_out.png"));
 	ui.tbtPlus->setIcon(QIcon(":/images/plus.png"));
 	ui.tbtMinus->setIcon(QIcon(":/images/minus.png"));
+	ui.tbtPlus2->setIcon(QIcon(":/images/plus.png"));
+	ui.tbtMinus2->setIcon(QIcon(":/images/minus.png"));
 
 	ui.tbtSearchData->setToolTip(tr("Search data and rescale to show all"));
 	ui.tbtScaleIn_1->setToolTip(tr("Scale data in"));
@@ -238,8 +240,8 @@ LoggingWidget::LoggingWidget(QVector<ToolChannel*> channels, QWidget *parent) : 
 
 	ui.qwtPlot5->enableAxis(QwtPlot::yRight, true);
 
-	ui.qwtPlot1->setMinimumWidth(230);
-	ui.qwtPlot5->setMinimumWidth(230);
+	//ui.qwtPlot1->setMinimumWidth(230);
+	//ui.qwtPlot5->setMinimumWidth(230);
 	
 	QwtText title_depth;
 	QString title_depth_text = QString("Depth, m");
@@ -552,6 +554,8 @@ void LoggingWidget::setConnections()
 
 	connect(ui.tbtPlus, SIGNAL(clicked()), this, SLOT(scaleDepthIn()));
 	connect(ui.tbtMinus, SIGNAL(clicked()), this, SLOT(scaleDepthOut()));
+	connect(ui.tbtPlus2, SIGNAL(clicked()), this, SLOT(scaleDepthIn()));
+	connect(ui.tbtMinus2, SIGNAL(clicked()), this, SLOT(scaleDepthOut()));
 }
 
 

@@ -24,7 +24,7 @@ class DepthTemplateWizard : public QWidget, public Ui::DepthTemplateWizard
 	Q_OBJECT
 
 public:
-	explicit DepthTemplateWizard(QSettings *_settings, COM_PORT *com_port, COM_PORT *com_port_stepmotor, QStringList depth_meter_list, Clocker *clocker, QWidget *parent = 0);
+	explicit DepthTemplateWizard(QSettings *_settings, TCP_Settings *_dmeter_socket, TCP_Settings *_stmotor_socket, QStringList depth_meter_list, Clocker *clocker, QWidget *parent = 0);
 	~DepthTemplateWizard();
 
 	double_b getDepthData() { return current_depth_meter->getDepth(); /*double_b(depth_flag, depth);*/ } 
@@ -38,19 +38,21 @@ public:
 	ImpulsConnectionWidget *getConnectionWidget() { return connectionWidget; }
 	bool isConnected() { return is_connected; }
 
-	COM_PORT *getCOMPort() { return COM_Port; }
-	COM_PORT *getCOMPortStepMotor() { return COM_Port_stepmotor; }
+	//COM_PORT *getCOMPort() { return COM_Port; }
+	//COM_PORT *getCOMPortStepMotor() { return COM_Port_stepmotor; }
+	TCP_Settings *getDepthMeterSocket() { return dmeter_socket; }
+	TCP_Settings *getStepMotorSocket() { return stmotor_socket; }
 
 	Ui::DepthTemplateWizard *getUI() { return ui; }
 
 private:
-	void initCOMSettings(COM_PORT *com_port);
-	void showData(uint8_t type, double val);
+	//void initCOMSettings(COM_PORT *com_port);
+	virtual void showData(uint8_t type, double val) { }
 
 	void setConnection();
-	void setDepthCommunicatorConnections();	
-	bool isAvailableCOMPort(COM_PORT *_com_port, int port_num);
-	QStringList availableCOMPorts();
+	//virtual void setDepthCommunicatorConnections() { }
+	//bool isAvailableCOMPort(COM_PORT *_com_port, int port_num);
+	//QStringList availableCOMPorts();
 
 private:
 	Ui::DepthTemplateWizard *ui;
@@ -62,8 +64,10 @@ private:
 	Clocker *clocker;
 	QTimer timer;
 
-	COM_PORT *COM_Port;
-	COM_PORT *COM_Port_stepmotor;
+	//COM_PORT *COM_Port;
+	//COM_PORT *COM_Port_stepmotor;
+	TCP_Settings *dmeter_socket;
+	TCP_Settings *stmotor_socket;
 
 	QSettings *app_settings;
 

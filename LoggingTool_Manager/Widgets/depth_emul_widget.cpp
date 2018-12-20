@@ -1,3 +1,6 @@
+#include <QApplication>
+#include <QDesktopWidget>
+
 #include "tools_general.h"
 
 #include "depth_emul_widget.h"
@@ -8,8 +11,21 @@ DepthEmulatorWidget::DepthEmulatorWidget(Clocker *_clocker, QWidget *parent) : u
 	ui->setupUi(this);
 	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 	
-	ui->lblDepth->setText("<font color=darkblue>Depth:</font>");
+	QDesktopWidget *d = QApplication::desktop();
+	int cur_x = d->width();     // returns desktop width
+	int cur_y = d->height();    // returns desktop height
+	int fontSize = 10;
+	int iconSize = 24;
+	if (cur_x < 1920) 
+	{
+		fontSize = 9;
+		iconSize = 16;
+	}	
+	
 	QFont font1 = ui->lblDepth->font();
+	font1.setPointSize(fontSize);
+	ui->lblDepth->setText("<font color=darkblue>Depth:</font>");
+	
 	font1.setBold(false);
 	ui->lblDepth->setFont(font1);
 	
@@ -21,6 +37,8 @@ DepthEmulatorWidget::DepthEmulatorWidget(Clocker *_clocker, QWidget *parent) : u
 
 	ui->pbtStart->setFont(font1);
 	ui->pbtStop->setFont(font1);
+	ui->pbtStart->setIconSize(QSize(iconSize,iconSize));
+	ui->pbtStop->setIconSize(QSize(iconSize,iconSize));
 	ui->pbtStart->setIcon(QIcon(":/images/start.png"));
 	ui->pbtStop->setIcon(QIcon(":/images/stop.png"));
 
@@ -34,6 +52,9 @@ DepthEmulatorWidget::DepthEmulatorWidget(Clocker *_clocker, QWidget *parent) : u
 
 	ui->dsbxDepth->setStyleSheet("QDoubleSpinBox { color: darkGreen }");
 	ui->dsbxRate->setStyleSheet("QDoubleSpinBox { color: darkGreen }");
+	font1.setBold(true);
+	ui->dsbxDepth->setFont(font1);
+	ui->dsbxRate->setFont(font1);
 	
 	k_depth = 1;
 	k_rate = 3600;

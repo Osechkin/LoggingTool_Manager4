@@ -154,7 +154,7 @@ private slots:
 	void viewCode();
 	//void setExportSettings();
 	void showSequenceInfo();
-	//void triggerJSerror();
+	//void triggerJSerror();	
 	
 signals:
 	void sequence_changed();

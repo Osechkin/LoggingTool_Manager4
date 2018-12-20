@@ -11,6 +11,7 @@
 #include "message_class.h"
 #include "qextserialport.h"
 #include "../io_containers.h"
+#include "../tools_general.h"
 #include "../Common/data_containers.h"
 
 class MainWindow;
@@ -73,7 +74,7 @@ public:
 	void wake();
 	int id() { return thread_id; }
 	bool getNMRToolState() { return nmrtool_state; }
-	bool getSDSPToolstate() { return sdsptool_state; }
+	bool getSDSPToolstate() { return sdsptool_state; }	
 	
 private:	
 	void initMsgSettings();
@@ -81,8 +82,7 @@ private:
 	int findMsgHeader(QUEUE<uint8_t>* _queue, COM_Message *_msg);
 	int checkMsgHeader(COM_Message *_msg);
 	void searchMsgHeader(QUEUE<uint8_t> *_queue, QByteArray &str);
-	void searchMsgHeader2(QUEUE<uint8_t> *_queue, QByteArray &str);
-
+	
 	//bool findMsgBody(bool &len_ok);
 	void searchPackets(QByteArray &str, COM_Message *_msg, QUEUE<uint8_t>* _queue, QList<int> *shifts);
 	void sendCOMMsg(COM_Message *msg);
@@ -119,7 +119,8 @@ private:
 	volatile bool com_data_ready;				// флаг о приходе новой порции байт из COM-порта
 	
 	GF_Data *gf_data;
-	QextSerialPort *COM_port;
+	//QextSerialPort *COM_port;
+	TCP_Settings nmrtool_socket;
 	Clocker *clocker;
 
 	QMutex *com_msg_mutex;
@@ -156,10 +157,12 @@ private:
 	bool interleaving_out;					// применение перемешивания (interleaving) для выходных данных
 	bool on_break;							// показатель необходимости прервать выполнение операций.
 
-	int msg_header_delay;					// время ожидания конца заголовка сообщений (ms)
-	int msg_req_delay;						// Время ожидания отклика на отправленное сообщение (ms)
+	int msg_header_delay;					// время ожидания конца заголовка сообщений (ms)	
 	int msg_life_time;						// "Время жизни" сообщения. Необходимо для удаления сообщений, которые так и не были отправлены	
 	int sdsp_req_delay;						// время ожидания отклика на сообщение, отправленное в SDSP в режиме диагностики
+
+public:
+	static int msg_req_delay;				// Время ожидания отклика на отправленное сообщение (ms) - made static variable 5.07.2018
 
 private:
 	void showBadMessageAsText(COM_Message *msg, QString &text);
@@ -171,6 +174,7 @@ public slots:
 	void breakAllActions(); //{ on_break = true; }
 	void stopThread() { is_running = false; }
 	void sendToSDSP(QByteArray& arr);
+	void setMsgReqDelay(int _value);		// Added 5.07.2018
 
 private slots:
 	void timeClocked();
@@ -194,111 +198,6 @@ signals:
 };
 
 
-// поток, содержащий TCP сервер для передачи измеренных данных 
-// в программу визуализации эксперимента ("планшет")
-class TcpCommunicator : public QThread
-{
-	Q_OBJECT
-
-public:
-	explicit TcpCommunicator(int port, QMutex *ds_mutex, QObject *parent = 0); // конструктор
-	~TcpCommunicator();
-
-	void setPort(int _port);
-	int getPort() { return port; }
-
-public slots:
-	void sendDataToClient(const QString &sock_id, QString &str);
-	void sendDataToClient(const QString &sock_id, DataSets *dss);
-	void stopThread() { is_running = false; }
-		
-private:
-	void sendDataToClient(QTcpSocket *sock, QString &str);
-	void prepareDataForNet(DataSets *dss, QString &out_str);
-
-	void lockDataSet() { dataset_mutex->lock(); }
-	void unlockDataSet() { dataset_mutex->unlock(); }
-	QMutex *dataset_mutex;
-
-	volatile bool is_running;
-
-	QTcpServer *server;										// указатель на сервер
-	QList<QTcpSocket*> sockets;								// указатели на клиентов
-	QList<QPair<QString, bool> > socket_auths;				// список клиентов прошедших/непрошедших проверку
-	int port;
-
-	QFile *out;
-	
-private slots:
-	void incommingConnection();								// обработчик входящего подключения
-	void treatRequest();									// обработчик входящих запросов клиентов
-	void changeState(QAbstractSocket::SocketState state);	// обработчик изменения состояния сокета-клиента
-
-protected:
-	void run();
-
-signals:	
-	void print_info(QString&);
-	void error_msg(QString&);
-	void auth_clients(int);
-	void get_data(const QString&, int);	
-	void send_to_sdsp(QByteArray&);
-};
-
-
-// поток, содержащий TCP сервер для передачи измеренных данных 
-// в программу CDiag
-#define CLOCK_PERIOD_COUNT		(6)								// количество "клоков" объекта Clocker, в течение которых копятся запросы из программы CDiag 
-																// ( ~ 17*CLOCK_PERIOD - в миллисекундах)
-
-class CDiagCommunicator : public QThread
-{
-	Q_OBJECT
-
-public:
-	explicit CDiagCommunicator(int port, QObject *parent = 0); // конструктор
-	~CDiagCommunicator();
-
-	void setPort(int _port);
-	int getPort() { return port; }
-
-public slots:
-	void sendDataToClient(const QString &sock_id, QString &str);
-	void sendDataToClient(QVector<uint8_t> *vec);
-	void stopThread() { is_running = false; }
-	void calcClocks();
-
-private:
-	void sendDataToClient(QTcpSocket *sock, QString &str);	
-	void establishDirectAccessToSDSP(bool flag);			// установить непосредственную связь с СДСП (для настройки)
-		
-	volatile bool is_running;
-
-	QTcpServer *server;										// указатель на сервер
-	QList<QTcpSocket*> sockets;								// указатели на клиентов
-	QList<QPair<QString, bool> > socket_auths;				// список клиентов прошедших/непрошедших проверку
-	int port;
-
-	int clocks;
-	QList<uint8_t> bytes_from_cdiag;
-
-private slots:
-	void incommingConnection();								// обработчик входящего подключения
-	void treatRequest();									// обработчик входящих запросов клиентов
-	void changeState(QAbstractSocket::SocketState state);	// обработчик изменения состояния сокета-клиента
-
-protected:
-	void run();
-
-signals:	
-	void print_info(QString&);
-	void error_msg(QString&);
-	void auth_clients(int);
-	void get_data(const QString&, int);	
-	void send_to_sdsp(QByteArray&);
-};
-
-
 
 #define DEPTH_BUFF_SIZE		5
 #define DEPTH_MAX_DELTA		10
@@ -310,7 +209,7 @@ class DepthCommunicator : public QThread
 	Q_OBJECT
 
 public:
-	explicit DepthCommunicator(QextSerialPort *com_port, Clocker *clocker, QObject *parent = 0);
+	explicit DepthCommunicator(QTcpSocket *socket, Clocker *clocker, QObject *parent = 0);
 	~DepthCommunicator();
 
 	void freeze();
@@ -318,13 +217,15 @@ public:
 	int id() { return thread_id; }
 	//bool getNMRToolState() { return nmrtool_state; }
 
-	void setPort(QextSerialPort *com_port);
+	//void setPort(QextSerialPort *com_port);
+	void setSocket(QTcpSocket *socket);
 
 private:		
 	void sendRequestToCOM(DepthMeterData *dmd);	
 	//void treatCOMData(QByteArray _str, COM_Message *_msg);	
 
-	QextSerialPort *COM_port;	
+	//QextSerialPort *COM_port;	
+	QTcpSocket *socket;
 	Clocker *clocker;
 	QTimer *msg_timer;
 	
@@ -367,7 +268,7 @@ class LeuzeCommunicator : public QThread
 	Q_OBJECT
 
 public:
-	explicit LeuzeCommunicator(QextSerialPort *com_port, Clocker *clocker, QObject *parent = 0);
+	explicit LeuzeCommunicator(QTcpSocket *socket, Clocker *clocker, QObject *parent = 0);
 	~LeuzeCommunicator();
 
 	enum ErrCode { NoError = 0, NoSignal = 1, UnknownError = 2 };
@@ -376,13 +277,15 @@ public:
 	void wake();
 	int id() { return thread_id; }
 	
-	void setPort(QextSerialPort *com_port);
+	//void setPort(QextSerialPort *com_port);
+	void setSocket(QTcpSocket *socket);
 
 private:		
 	void sendRequestToCOM();	
 
 private:
-	QextSerialPort *COM_port;	
+	//QextSerialPort *COM_port;	
+	QTcpSocket *socket;
 	Clocker *clocker;
 	
 	QString acc_data;								// приемник символов, поступающих по сети
@@ -420,20 +323,22 @@ class StepMotorCommunicator : public QThread
 	Q_OBJECT
 
 public:
-	explicit StepMotorCommunicator(QextSerialPort *com_port, QObject *parent = 0);
+	explicit StepMotorCommunicator(QTcpSocket *socket, QObject *parent = 0);
 	~StepMotorCommunicator();
 
 	void freeze();
 	void wake();
 	int id() { return thread_id; }
 	
-	void setPort(QextSerialPort *com_port);
+	//void setPort(QextSerialPort *com_port);
+	void setSocket(QTcpSocket *socket);
 
 private:		
 	void sendRequestToCOM(QByteArray *arr);		
 
 private:
-	QextSerialPort *COM_port;	
+	//QextSerialPort *COM_port;	
+	QTcpSocket *socket;
 	
 	QString acc_data;								// приемник символов, поступающих по сети
 

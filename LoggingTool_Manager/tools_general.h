@@ -2,6 +2,7 @@
 #define TOOLS_GENERAL_H
 
 #include <QStringList>
+#include <QTcpSocket>
 
 #include "qextserialport.h"
 
@@ -66,6 +67,14 @@ struct Communication_Settings
 	bool packlen_autoadjust;		// оптимизация длины пакетов (вкл./выкл.)
 	bool noise_control;				// адаптивная подстройка параметров алгоритма помехоустойчивого кодирования в зависимости от помеховой обстановки (вкл./выкл.)
 	bool interleaving;				// применение/не применение алгоритма "интерливинга" (перемешивания байтов в пакетах) 
+};
+
+
+struct TCP_Settings
+{
+	QTcpSocket *socket;
+	QString ip_address;
+	int port;
 };
 
 

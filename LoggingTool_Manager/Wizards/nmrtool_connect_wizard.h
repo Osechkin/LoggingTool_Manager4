@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QSettings>
 #include <QLabel>
+#include <QTcpSocket>
 
 #include "ui_nmrtool_connect_wizard.h"
 
@@ -82,16 +83,15 @@ class NMRToolLinker : public QWidget, public Ui::NMRToolLinker
 	Q_OBJECT
 
 public:
-	explicit NMRToolLinker(COM_PORT *_com_port, QSettings *settings, QWidget *parent = 0);
+	explicit NMRToolLinker(TCP_Settings *nmrtool_socket, QSettings *settings, QWidget *parent = 0);
 	~NMRToolLinker();
 
 	TrafficWidget *getTrafficWidget() const { return trafficWidget; }
 	ConnectionWidget *getConnectionWidget() const { return connWidget; }
 	QTextEdit *getReportWidget() const { return ui->tedReport; }
 	
-	QString getCOMPortName() { return com_port->COM_port->portName(); }
-	QStringList getPortNameList() { return port_names; }
-	PortSettings getPortSettings() { return com_port->COM_Settings; }
+	//QString getCOMPortName() { return com_port->COM_port->portName(); }	
+	//PortSettings getPortSettings() { return com_port->COM_Settings; }
 	ConnectionState getConnectionState() { return connection_state; }	
 
 	QList<DeviceData*> *getMsgContainer() { return &msg_container; }
@@ -102,9 +102,9 @@ public:
 public slots:	
 	void showCmdResult(uint32_t _uid, QString obj_name, QVariantList data = QVariantList());
 	void addText(QString text);
-	void refreshCOMPortSettings();
-	//void applyCOMPortSettings();
-	bool openCOMPort();
+	//void refreshCOMPortSettings();	
+	//bool openCOMPort();
+	bool connectNMRToolSocket();
 	void stopConnection();
 	void searchForNMRTool();
 	void startConnection(bool flag);
@@ -124,7 +124,7 @@ public slots:
 private:
 	void setConnections();
 	QString getCurrentTime();
-	void saveCOMPortSettings();
+	//void saveCOMPortSettings();
 
 	Ui::NMRToolLinker *ui;
 	TrafficWidget *trafficWidget;
@@ -134,18 +134,19 @@ private:
 	
 	QSettings *app_settings;
 
-	COM_PORT *com_port;
-	QStringList port_names;
+	//COM_PORT *com_port;
+	//QStringList port_names;
+	TCP_Settings *nmrtool_socket;
 	ConnectionState connection_state;
 
 	QList<DeviceData*> msg_container;	
 	
 private slots:	
-	void setCOMPort(QString str);
-	void setBaudrate(QString str);
-	void setDataBits(QString str);
-	void setParity(QString str);
-	void setStopBits(QString str);	
+	//void setCOMPort(QString str);
+	//void setBaudrate(QString str);
+	//void setDataBits(QString str);
+	//void setParity(QString str);
+	//void setStopBits(QString str);	
 	void setLogVizState(bool flag);
 	
 signals:

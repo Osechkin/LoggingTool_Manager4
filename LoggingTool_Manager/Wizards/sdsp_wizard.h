@@ -84,7 +84,7 @@ private:
 	QList<uint8_t> findCmdValue(const QString &str, const Sequence &seq);
 	QList<uint8_t> findInstrValue(const QString &str, const Sequence &seq, bool &flag);
 	bool SDSPWizard::findSequenceScripts(QStringList &files, QStringList &pathes);
-
+	
 	QList<CTreeWidgetItem*> c_items;
 	QList<CTreeWidgetItem*> c_title_items;
 	CTreeWidgetItem *c_item_selected;

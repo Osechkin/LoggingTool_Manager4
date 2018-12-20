@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>555</width>
-    <height>233</height>
+    <width>600</width>
+    <height>219</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,11 +26,11 @@
    <property name="bottomMargin">
     <number>5</number>
    </property>
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="gbxSaveData">
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
+       <pointsize>9</pointsize>
       </font>
      </property>
      <property name="title">
@@ -172,7 +172,7 @@
          <widget class="QLabel" name="label_5">
           <property name="font">
            <font>
-            <pointsize>9</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="text">
@@ -268,7 +268,7 @@
      </property>
     </spacer>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>

@@ -1,3 +1,5 @@
+#include <QApplication>
+#include <QDesktopWidget>
 #include <QMessageBox>
 
 #include "distance_meter_widget.h"
@@ -9,6 +11,60 @@ LeuzeDistanceMeterWidget::LeuzeDistanceMeterWidget(QSettings *_settings, Clocker
 {
 	ui->setupUi(this);
 	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+
+	QDesktopWidget *d = QApplication::desktop();
+	int cur_x = d->width();     // returns desktop width
+	int cur_y = d->height();    // returns desktop height
+	int fontSize = 10;
+	int iconSize = 24;
+	if (cur_x < 1920) 
+	{
+		fontSize = 9;
+		iconSize = 16;
+	}
+	//double ratio = sqrt(cur_x*cur_x + cur_y*cur_y)/sqrt(1920*1920 + 1080*1080);
+	QFont font = ui->tabWidget->font();
+	//font.setPointSize(10*ratio);
+	font.setPointSize(fontSize);
+	ui->cboxDistance->setFont(font);
+	ui->lblPosition->setFont(font);
+	ui->ledDistance->setFont(font);
+	ui->lblSetPosition->setFont(font);
+	ui->dsboxSetPosition->setFont(font);
+	ui->label_7->setFont(font);
+	ui->pbtSet->setFont(font);
+	ui->pbtBegin->setFont(font);
+	ui->pbtBack->setFont(font);
+	ui->pbtForward->setFont(font);
+	ui->pbtEnd->setFont(font);
+	ui->pbtBegin->setIconSize(QSize(iconSize,iconSize));
+	ui->pbtBack->setIconSize(QSize(iconSize,iconSize));
+	ui->pbtForward->setIconSize(QSize(iconSize,iconSize));
+	ui->pbtEnd->setIconSize(QSize(iconSize,iconSize));
+	ui->lblCoreDiameter->setFont(font);
+	ui->dsboxCoreDiameter->setFont(font);
+	ui->label_5->setFont(font);
+	ui->pbtConnect->setFont(font);
+	ui->lblFrom->setFont(font);
+	ui->dsboxFrom->setFont(font);
+	ui->label->setFont(font);
+	ui->lblTo->setFont(font);
+	ui->dsboxTo->setFont(font);
+	ui->label_2->setFont(font);
+	ui->lblStep->setFont(font);
+	ui->dsboxStep->setFont(font);
+	ui->label_3->setFont(font);
+	ui->lblCalibrLen->setFont(font);
+	ui->dsboxCalibrLength->setFont(font);
+	ui->label_4->setFont(font);
+	ui->lblPorosity->setFont(font);
+	ui->dsboxPorosity->setFont(font);
+	ui->label_8->setFont(font);
+	ui->lblZero->setFont(font);
+	ui->dsboxZero->setFont(font);
+	ui->label_6->setFont(font);
+	ui->pbtSetZero->setFont(font);
+	ui->pbtClear->setFont(font);
 
 	app_settings = _settings;
 
@@ -121,31 +177,7 @@ LeuzeDistanceMeterWidget::LeuzeDistanceMeterWidget(QSettings *_settings, Clocker
 	ui->cboxDistance->addItems(distance_units_list);
 	ui->cboxDistance->setCurrentIndex(1);
 	ui->cboxDistance->setEnabled(true);
-	//ui->cboxSetDistance->addItems(distance_units_list);
-	//ui->cboxSetDistance->setCurrentIndex(1);
-	//ui->cboxSetDistance->setEnabled(true);
-	//ui->cboxFrom->addItems(distance_units_list);
-	//ui->cboxFrom->setCurrentIndex(1);
-	//ui->cboxFrom->setEnabled(true);
-	//ui->cboxTo->addItems(distance_units_list);
-	//ui->cboxTo->setCurrentIndex(1);
-	//ui->cboxTo->setEnabled(true);
-	//ui->cboxStep->addItems(distance_units_list);
-	//ui->cboxStep->setCurrentIndex(1);
-	//ui->cboxStep->setEnabled(true);
-	//ui->cboxZero->addItems(distance_units_list);
-	//ui->cboxZero->setCurrentIndex(1);
-	//ui->cboxZero->setEnabled(true);
 	
-	/*ui->cboxCalibrLen->setVisible(false);
-	ui->cboxCoreDiameter->setVisible(false);
-	ui->cboxDistance->setVisible(false);
-	ui->cboxFrom->setVisible(false);
-	ui->cboxSetDistance->setVisible(false);
-	ui->cboxStep->setVisible(false);
-	ui->cboxTo->setVisible(false);
-	ui->cboxZero->setVisible(false);*/
-
 	ui->ledDistance->setText("");	
 		
 	ui->dsboxSetPosition->setMinimum(-200);
@@ -269,7 +301,7 @@ void LeuzeDistanceMeterWidget::moveBack(bool flag)
 	QString str_cmd = "";
 	if (pbt == ui->pbtBack) 
 	{
-		str_cmd = "\EN*DR*SD50*MV*";
+		str_cmd = "\EN*DR*SD200*MV*";			// it was 50 (changed 7.07.2018)
 
 		ui->pbtForward->setChecked(false);
 		ui->pbtEnd->setChecked(false);		
@@ -325,7 +357,7 @@ void LeuzeDistanceMeterWidget::moveForward(bool flag)
 	QString str_cmd = "";
 	if (pbt == ui->pbtForward) 
 	{
-		str_cmd = "\EN*DL*SD50*MV*";
+		str_cmd = "\EN*DL*SD200*MV*";		// it was 50 (changed 7.07.2018)
 
 		ui->pbtBack->setChecked(false);		
 		ui->pbtBegin->setChecked(false);		
@@ -381,20 +413,28 @@ void LeuzeDistanceMeterWidget::setPosition(double pos)
 	}
 
 	set_distance = pos;
-	if (set_distance > distance )
+	// Added 6.07.2018 - чтобы вылечить глюк движения не в ту сторону, т.к. distance не успел измениться со значения по умолчанию = 0.001
+	if (distance <= 0.001)
+	{
+		pos_is_set = true;
+		direction_coef = -1;
+		stepmotor_communicator->toSend("\EN*DR*SD1000*MV*");												// Move step motor left, high speed
+	}
+	// ----------------------------------------------------------------------------------------------------------------------------------
+	else if (set_distance > distance )
 	{
 		pos_is_set = true;
 		direction_coef = 1;
-		if (set_distance - distance < 0.011) stepmotor_communicator->toSend("\EN*DL*SD50*MV*");				// Move step motor right, very low speed			
-		else if (set_distance - distance < 0.03) stepmotor_communicator->toSend("\EN*DL*SD200*MV*");		// Move step motor right, low speed			
-		else stepmotor_communicator->toSend("\EN*DL*SD1000*MV*");											// Move step motor right, high speed
+		if (set_distance - distance < 0.011) stepmotor_communicator->toSend("\EN*DL*SD50*MV*");				// Move step motor right, very low speed 
+		else if (set_distance - distance < 0.03) stepmotor_communicator->toSend("\EN*DL*SD200*MV*");		// Move step motor right, low speed		 
+		else stepmotor_communicator->toSend("\EN*DL*SD1000*MV*");											// Move step motor right, high speed	 
 	}
 	else if (set_distance < distance )
 	{
 		pos_is_set = true;
 		direction_coef = -1;
-		if (distance - set_distance < 0.011) stepmotor_communicator->toSend("\EN*DR*SD50*MV*");				// Move step motor left, very low speed
-		else if (distance - set_distance < 0.03) stepmotor_communicator->toSend("\EN*DR*SD200*MV*");		// Move step motor left, low speed
+		if (distance - set_distance < 0.011) stepmotor_communicator->toSend("\EN*DR*SD50*MV*");				// Move step motor left, very low speed	
+		else if (distance - set_distance < 0.03) stepmotor_communicator->toSend("\EN*DR*SD200*MV*");		// Move step motor left, low speed		
 		else stepmotor_communicator->toSend("\EN*DR*SD1000*MV*");											// Move step motor left, high speed
 	}
 	else 
@@ -429,7 +469,7 @@ void LeuzeDistanceMeterWidget::setPosition(bool flag)
 		{
 			pos_is_set = true;
 			direction_coef = 1;
-			if (set_distance - distance < 0.011) stepmotor_communicator->toSend("\EN*DL*SD50*MV*");				// Move step motor right, very low speed			
+			if (set_distance - distance < 0.011) stepmotor_communicator->toSend("\EN*DL*SD50*MV*");				// Move step motor right, very low speed				
 			else if (set_distance - distance < 0.03) stepmotor_communicator->toSend("\EN*DL*SD200*MV*");		// Move step motor right, low speed			
 			else stepmotor_communicator->toSend("\EN*DL*SD1000*MV*");											// Move step motor right, high speed
 			
@@ -438,8 +478,8 @@ void LeuzeDistanceMeterWidget::setPosition(bool flag)
 		{
 			pos_is_set = true;
 			direction_coef = -1;
-			if (distance - set_distance < 0.011) stepmotor_communicator->toSend("\EN*DR*SD50*MV*");				// Move step motor left, very low speed
-			else if (distance - set_distance < 0.03) stepmotor_communicator->toSend("\EN*DR*SD200*MV*");		// Move step motor left, low speed
+			if (distance - set_distance < 0.011) stepmotor_communicator->toSend("\EN*DR*SD50*MV*");				// Move step motor left, very low speed		
+			else if (distance - set_distance < 0.03) stepmotor_communicator->toSend("\EN*DR*SD200*MV*");		// Move step motor left, low speed			
 			else stepmotor_communicator->toSend("\EN*DR*SD1000*MV*");											// Move step motor left, high speed
 		}
 		else 
@@ -672,6 +712,7 @@ void LeuzeDistanceMeterWidget::setNewCoreDiameter(double val)
 
 void LeuzeDistanceMeterWidget::connectAllMeters(bool flag)
 {
+	/* Temporary commented !
 	if (!flag)
 	{
 		if (COM_Port->COM_port != NULL) 
@@ -741,6 +782,7 @@ void LeuzeDistanceMeterWidget::connectAllMeters(bool flag)
 				emit connected(true);
 
 				timer.start(250);
+				//QThread::msleep(500);		// sleep 500 ms - попытка решить проблему неправильного движения керна в начальный момент (из-за того, что иногда distance = 0.001 в момент старта)
 								
 				ui->pbtConnect->setText(tr("Disconnect from Rock Movement System"));
 				ui->pbtConnect->setIcon(QIcon(":/images/remove.png"));				
@@ -804,7 +846,7 @@ void LeuzeDistanceMeterWidget::connectAllMeters(bool flag)
 			int ret = QMessageBox::warning(this, tr("Warning!"), tr("No available COM-Port was found to connect to Step Motor controller!"), QMessageBox::Ok, QMessageBox::Ok);
 		}	
 	}	
-
+	*/
 	ui->framePosControl->setEnabled(is_connected);
 }
 

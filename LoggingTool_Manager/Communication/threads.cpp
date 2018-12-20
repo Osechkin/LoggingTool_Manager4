@@ -48,15 +48,16 @@ void Clocker::stopThread()
 }
 
 
+int COMCommander::msg_req_delay = MSG_REQ_DELAY;	// added 5.07.2018
+
 COMCommander::COMCommander(MainWindow *main_win, QObject *parent)
 {
 	thread_id = thid++;
+		
+	nmrtool_socket = main_win->getNMRToolSocket();
+	connect(nmrtool_socket.socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 
-	COM_port = main_win->getCOMPort();	
-	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
-
-	gf_data = main_win->getGFDataObj();
-	
+	gf_data = main_win->getGFDataObj();	
 	clocker = main_win->getClocker();
 	com_msg_mutex = main_win->getCOMMsgMutex();
 	this->main_win = main_win;
@@ -122,17 +123,7 @@ COMCommander::~COMCommander()
 
 
 void COMCommander::run()
-{
-	//msg_timer = new QTimer();	
-	//connect(msg_timer, SIGNAL(timeout()), this, SLOT(lifeTimeElapsed()));
-
-	if (!COM_port)
-	{
-		freeze();
-		emit error_msg("Bad pointer to COM-port!");
-		return;
-	}
-	
+{	
 	is_freezed = false;
 	is_running = true;
 
@@ -170,6 +161,20 @@ void COMCommander::initMsgSettings()
 	sdsp_req_delay = SDSP_REQ_DELAY;
 }
 
+// Added 5.07.2018 --------------------------
+void COMCommander::setMsgReqDelay(int _value)
+{
+	if (_value > 0) msg_req_delay = _value;
+	else 
+	{
+		bool ok;
+		QSettings *app_settings = main_win->getAppSettings();
+		if (app_settings->contains("MessageSettings/MsgReqDelay")) msg_req_delay = app_settings->value("MessageSettings/MsgReqDelay").toInt(&ok); else ok = false;
+		if (!ok) msg_req_delay = MSG_REQ_DELAY;
+	}
+}
+// ------------------------------------------
+
 
 void COMCommander::storeCOMMsg(COM_Message* _msg)
 {
@@ -187,11 +192,9 @@ void COMCommander::sendCOMMsg(COM_Message *msg)
 		msg->getRawData(&arr);
 		Sleep(20);
 
-		//COM_port->write((char*)(arr.data), arr.len);		
-		COM_port->write((char*)(&start_byte), 1);
-		COM_port->write((char*)(arr.data.get()), arr.len);
-		COM_port->write((char*)(&stop_byte), 1);
-		//COM_port->write((char*)(&stop_byte), 1);
+		nmrtool_socket.socket->write((char*)&start_byte, 1);
+		nmrtool_socket.socket->write((char*)arr.data.get(), arr.len);
+		nmrtool_socket.socket->write((char*)&stop_byte, 1);
 
 		//msg->setStored(true);
 		//emit store_COM_message(msg);		
@@ -203,14 +206,13 @@ void COMCommander::sendCOMMsg(COM_Message *msg)
 		if (msg->getIOStatus() == COM_Message::HEADER_SENT)
 		{
 			SmartArr arr;
-			msg->getHeaderRawData(&arr);
+			msg->getHeaderRawData(&arr);			
 			Sleep(20);
 
-			//COM_port->write((char*)(arr.data), arr.len);
-			COM_port->write((char*)(&start_byte), 1);
-			COM_port->write((char*)(arr.data.get()), arr.len);
-			COM_port->write((char*)(&stop_byte), 1);
-			
+			nmrtool_socket.socket->write((char*)&start_byte, 1);
+			nmrtool_socket.socket->write((char*)arr.data.get(), arr.len);
+			nmrtool_socket.socket->write((char*)&stop_byte, 1);
+
 			msg->setStored(false);
 
 			arr.destroy();
@@ -224,8 +226,9 @@ void COMCommander::sendCOMMsg(COM_Message *msg)
 				Sleep(20);
 
 				SmartArr arr;
-				msg->getPacketRawData(&arr, i);				
-				COM_port->write((char*)(arr.data.get()), arr.len);				
+				msg->getPacketRawData(&arr, i);		
+				nmrtool_socket.socket->write((char*)(arr.data.get()), arr.len);		
+
 				arr.destroy();
 			}		
 
@@ -281,22 +284,17 @@ void COMCommander::treatCOMData(COM_Message *_msg)
 
 		emit msg_state(1,1);		// заголовок не был раскодирован успешно
 	}
-	head_q->clear();				
-	
+	head_q->clear();	
 }
 
 
 void COMCommander::searchMsgHeader(QUEUE<uint8_t> *_queue, QByteArray &str)
-{
-	//QString str_data = "";
-
+{	
 	if (msg_header_state == NOT_DEFINED)
 	{				
 		for (int i = 0; i < str.count(); i++) 
 		{
-			uint8_t ch = str[i];
-			//str_data += QString::number(ch) + " ";	
-
+			uint8_t ch = str[i];			
 			if (ch == START_BYTE && i == 0)
 			{
 				msg_header_state = STARTED;		
@@ -309,496 +307,23 @@ void COMCommander::searchMsgHeader(QUEUE<uint8_t> *_queue, QByteArray &str)
 				break;
 			}
 			else _queue->put(ch);
-		}
-		//qDebug() << "not defined: " << str_data; 
+		}		
 	}
 	else if (msg_header_state == STARTED)
 	{
 		for (int i = 0; i < str.count(); i++) 
 		{
-			uint8_t ch = str[i];
-			//str_data += QString::number(ch) + " ";	
-
+			uint8_t ch = str[i];			
 			if (ch == STOP_BYTE && _queue->count() == HEADER_LEN)
 			{
 				incom_msg_state = STARTED;	
 				break;
 			}
 			else _queue->put(ch);
-		}
-		//qDebug() << "started: " << str_data; 
+		}		
 	}
 }
 
-void COMCommander::searchMsgHeader2(QUEUE<uint8_t> *_queue, QByteArray &str)
-{
-	//QString str_data = "";
-
-	if (msg_header_state == NOT_DEFINED)
-	{				
-		for (int i = 0; i < str.count(); i++) 
-		{
-			uint8_t ch = str.at(0);
-			str.remove(0,1);
-			//str_data += QString::number(ch) + " ";	
-
-			if (ch == START_BYTE)
-			{
-				msg_header_state = STARTED;		
-				_queue->clear();
-				msg_timer->start(msg_header_delay);
-			}
-			else if (ch == STOP_BYTE && _queue->count() == HEADER_LEN)
-			{
-				incom_msg_state = STARTED;	
-				break;
-			}
-			else _queue->put(ch);
-		}
-		//qDebug() << "not defined: " << str_data; 
-	}
-	else if (msg_header_state == STARTED)
-	{
-		for (int i = 0; i < str.count(); i++) 
-		{
-			uint8_t ch = str.at(0);
-			str.remove(0,1);
-			//str_data += QString::number(ch) + " ";	
-
-			if (ch == STOP_BYTE && _queue->count() == HEADER_LEN)
-			{
-				incom_msg_state = STARTED;	
-				break;
-			}
-			else _queue->put(ch);
-		}
-		//qDebug() << "started: " << str_data; 
-	}
-}
-
-/*
-void COMCommander::onDataAvailable()
-{
-	static QList<int> byte_shifts;
-
-#ifdef MSG_TEST
-	QString fileName = QApplication::applicationDirPath() + "/incomming_msg_test.txt";
-	QFile file(fileName); 
-	if (!file.open(QIODevice::ReadOnly)) 
-	{ 
-		qDebug() << tr("Cannot open file 'incomming_msg_test.txt' for reading"); 
-		return; 
-	} 
-
-	while (!file.atEnd())
-	{
-		QByteArray barr = file.readLine();
-
-		QString all_text = QString::fromLocal8Bit(barr);
-		if (all_text.size() < 2) continue;
-
-		QStringList qhead = all_text.split("  ").first().split(" ");
-		QStringList qbody = all_text.split("  ").at(1).split(" ");
-
-		MsgHeader test_header();
-		MsgHeaderInfo test_hdr_info;
-		test_hdr_info.start_marker = qhead[0].toUInt();
-		test_hdr_info.w_addr = qhead[1].toUInt() & 0x0F;	
-		test_hdr_info.r_addr = (qhead[1].toUInt() & 0xF0) >> 4;
-		test_hdr_info.id = qhead[2].toUInt();
-		test_hdr_info.pack_count = qhead[3].toUInt();
-		test_hdr_info.pack_len = qhead[4].toUInt();
-		test_hdr_info.block_len = qhead[5].toUInt();
-		test_hdr_info.err_count = qhead[6].toUInt();
-		test_hdr_info.crc = qhead[7].toUInt();
-
-		MsgHeader *test_hdr = new MsgHeader(&test_hdr_info, gf_data);
-		COM_Message *test_msg = new COM_Message(test_hdr);
-
-		QByteArray barr_qbody;
-		for (int i = 0; i < qbody.count(); i++) barr_qbody.append(qbody[i].toUInt());
-		QUEUE<uint8_t> test_body_q;
-		searchPackets(barr_qbody, test_msg, &test_body_q, &byte_shifts);
-		for (int i = 0; i < byte_shifts.count(); i++) 
-		{
-			byte_shifts[i] = byte_shifts[i]/test_hdr_info.pack_len - 1;
-		}
-				
-		QList<QVector<uint8_t> > test_packs; 
-		for (int i = 0; i < test_hdr_info.pack_count; i++)
-		{
-			QVector<uint8_t> pack_vec(test_hdr_info.pack_len);
-			for (int j = 0; j < test_hdr_info.pack_len; j++)
-			{
-				//pack_vec.data()[j] = (uint8_t)(qbody[i*test_hdr_info.pack_len + j].toUInt());
-				if (i*test_hdr_info.pack_len + j < test_body_q.count()) pack_vec.data()[j] = (uint8_t)(test_body_q.at(i*test_hdr_info.pack_len + j));
-			}
-			test_packs.push_back(pack_vec);
-		}
-
-		QList<QVector<uint8_t> > test_block_data; 
-		bool res = decodePackets(&test_body_q, test_msg);
-		for (int i = 0; i < test_msg->getPackets().count(); i++)
-		{
-			MsgPacket *test_pack = test_msg->getPackets().at(i);
-			QVector<uint8_t> test_block(test_pack->getBlockMap().len);
-			memcpy(test_block.data(), test_pack->getBlockMap().data.get(), test_pack->getBlockMap().len);
-			test_block_data.push_back(test_block);
-		}
-
-		for (int i = 0; i < byte_shifts.count(); i++)
-		{
-			int index = byte_shifts[i];
-			MsgPacket *pack = test_msg->getPackets()[index];
-			QVector<uint8_t> pack_block(pack->getBlockMap().len);
-			memcpy(pack_block.data(), pack->getBlockMap().data.get(), pack->getBlockMap().len);
-			
-			int pre_errors = 0;
-			for (int j = 0; j < pack_block.count(); j++) 
-			{
-				if (pack_block.data()[j] == DATA_STATE_FAIL) pre_errors++;
-			}
-
-			int shift_begin = -1;		// номер блока, с которого начался сдвиг
-			int j = pack_block.count()-1;
-			while (pack_block[j] == DATA_STATE_FAIL && j >= 0) 
-			{
-				shift_begin = j--; 
-			}
-			if (shift_begin >= 0)
-			{
-				SmartArr byte_arr = pack->getByteArray();
-				int pos1 = shift_begin*test_hdr_info.block_len;
-				int len1 = byte_arr.len - pos1 - 1;
-				memcpy(byte_arr.data.get()+pos1, byte_arr.data.get()+pos1+1, len1*sizeof(uint8_t));
-				SmartArr res_data_arr(pack->getPacketLen() - 2*pack->getErrsCount()*pack->getBlockCount());	
-				SmartArr bad_map_arr(pack->getBlockCount());				
-				SmartArr res_byte_arr(pack->getPacketLen());
-				SmartArr res_rs_arr(2*pack->getErrsCount()*pack->getBlockCount());
-				decodePackByteArray(byte_arr, test_hdr_info.block_len, gf_data, res_byte_arr, res_data_arr, res_rs_arr, bad_map_arr);
-
-				int post_errors = 0;
-				for (int j = 0; j < bad_map_arr.len; j++) 
-				{
-					uint8_t state = bad_map_arr.data.get()[j];
-					if (state == DATA_STATE_FAIL) post_errors++;
-				}
-				if (post_errors < pre_errors)
-				{
-					memcpy(pack->getByteArray().data.get(), res_byte_arr.data.get(), res_byte_arr.len*sizeof(uint8_t));
-					memcpy(pack->getDataArray().data.get(), res_data_arr.data.get(), res_data_arr.len*sizeof(uint8_t));					
-					memcpy(pack->getRecData().data.get(), res_rs_arr.data.get(), res_rs_arr.len*sizeof(uint8_t));
-					memcpy(pack->getBlockMap().data.get(), bad_map_arr.data.get(), bad_map_arr.len*sizeof(uint8_t));
-				}				
-			}
-		}
-
-		test_msg->setIOStatus(COM_Message::COMPLETED);
-		test_msg->setStored(true);
-		
-		emit COM_message(test_msg, 0);
-	}
-#endif
-
-	com_data_ready = true;
-
-	QByteArray str = COM_port->readAll();
-
-	if (!str.isEmpty())
-	{
-		//prebuff += str;
-
-		if (msg_header_state < FINISHED)
-		{
-			searchMsgHeader(head_q, str);
-			uint8_t sz = head_q->count();
-
-			if (msg_header_state == STARTED && sz < HEADER_LEN) return;
-			else if (msg_header_state < FINISHED && incom_msg_state == STARTED && sz == HEADER_LEN)
-			{
-				treatCOMData(msg_incomming);
-			}
-		}
-						
-		if (incom_msg_state == FINISHED)
-		{
-			// если заголовок служебного сообщения (а значит и все служебное сообщение) успешно принят и декодирован
-			if (msg_incomming->getMsgHeader()->getStartMarker() == MTYPE_SERVICE)
-			{				
-				msg_incomming->setIOStatus(COM_Message::COMPLETED);
-				//msg_incomming->setStored(true);
-
-				//emit store_COM_message(msg_incomming);
-				//emit COM_message(msg_incomming, 0);
-
-				lock_COM_Msg();
-				COM_Message *msg = new COM_Message(new MsgHeader(gf_data));
-				msg_incomming->copyCOMMsg(msg);
-				
-				emit COM_message(msg, 0);				
-				unlock_COM_Msg();
-
-				executeServiceMsg(msg_incomming);
-				head_q->clear();
-				msg_header_state = NOT_DEFINED;
-				incom_msg_state = NOT_DEFINED;
-			}
-			// если заголовок короткого сообщения (а значит и все служебное сообщение) успешно принят и декодирован
-			if (msg_incomming->getMsgHeader()->getStartMarker() == MTYPE_SHORT)
-			{				
-				msg_incomming->setIOStatus(COM_Message::COMPLETED);
-				
-				//msg_incomming->setStored(true);
-				//emit store_COM_message(msg_incomming);
-
-				uint32_t dev_data_uid = 0;
-				if (!sent_device_data_queue.empty())
-				{					
-					DeviceData *device_data = sent_device_data_queue.at(0);	
-					dev_data_uid = device_data->uid;
-				}
-				COM_Message *msg = new COM_Message(new MsgHeader(gf_data));
-				msg_incomming->copyCOMMsg(msg);
-				
-				lock_COM_Msg();
-				emit COM_message(msg, dev_data_uid); 
-				unlock_COM_Msg();
-
-				executeShortMsg(msg_incomming);
-				
-				head_q->clear();				
-				msg_header_state = NOT_DEFINED;
-				incom_msg_state = NOT_DEFINED;				
-			}
-			// если успешно принят и декодирован заголовок многопакетного сообщения
-			else if (msg_incomming->getMsgHeader()->getStartMarker() == MTYPE_MULTYPACK)
-			{		
-				lock_COM_Msg();
-				msg_incomming->setIOStatus(COM_Message::NOT_COMPLETED);		
-				uint32_t uid = 0;
-				if (!sent_device_data_queue.empty())
-				{
-					DeviceData *device_data = sent_device_data_queue.at(0);		
-					uid = device_data->uid;
-				}
-				
-				COM_Message *msg = new COM_Message(new MsgHeader(gf_data));
-				msg_incomming->copyCOMMsg(msg);
-
-				emit COM_message(msg, uid);
-				
-				//responseMultypackHeader(msg_incomming, uid);	
-
-				// --- responseMultypackHeader(msg_incomming, uid) -----
-				MsgHeaderInfo hdr_info;
-				hdr_info.start_marker = MTYPE_SHORT;
-				hdr_info.w_addr = PC_MAIN;
-				hdr_info.r_addr = NMR_TOOL;
-				hdr_info.id = msg_incomming->getMsgHeader()->getSessionId();
-				hdr_info.srv_data.alloc(SRV_DATA_LEN);
-				hdr_info.srv_data.data[0] = HEADER_OK;
-								
-				MsgHeader *hdr = new MsgHeader(&hdr_info, gf_data);
-				COM_Message *msg_hdr_ok = new COM_Message(hdr);
-				msg_hdr_ok->setIOStatus(COM_Message::COMPLETED);
-				
-				last_request_msg.start_marker = MTYPE_SHORT;
-				last_request_msg.w_addr = PC_MAIN;
-				last_request_msg.r_addr = NMR_TOOL;
-				last_request_msg.id = hdr_info.id;
-				last_request_msg.srv_data.alloc(SRV_DATA_LEN);
-				last_request_msg.srv_data.data[0] = HEADER_OK;
-
-				msleep(1);				// нужна, т.к. программа на DSP не успевает перейти в режим ожидания сообщения HEADER_OK
-				sendCOMMsg(msg_hdr_ok);	
-				
-				int pack_len = msg_incomming->getMsgHeader()->getPackLen();
-				int pack_count = msg_incomming->getMsgHeader()->getPackCount();
-				int pack_delays = main_win->getCommSettings()->packet_delay * (pack_count - 1);
-				int packs_delay = 1000 + pack_delays*2.0 + (pack_len*pack_count)/(COM_port->baudRate()/8.0)*1000*2.0; // здесь 1000 - перевод из [с] в [мс], 1.5 - 50% запас по времени
-				msg_timer->start(packs_delay);
-				unlock_COM_Msg();
-
-				lock_COM_Msg();
-				emit COM_message(msg_hdr_ok, uid);
-				
-				body_q->clear();
-				byte_shifts.clear();
-				incom_msg_state = PACKS_STARTED;
-				
-				byte_counter = 0;
-				pack_started = false;
-				pack_stoped = false;
-				
-				unlock_COM_Msg();
-			}	
-		}
-		// если incom_msg_state = FAILED 
-		else if (incom_msg_state == FAILED )
-		{				
-			msg_incomming->clearCOMMsg();
-			
-			head_q->clear();
-			body_q->clear();
-			msg_header_state = NOT_DEFINED;
-			incom_msg_state = NOT_DEFINED;
-		}
-		// если incom_msg_state = TIMED_OUT
-		else if (incom_msg_state == TIMED_OUT)
-		{			
-			if (msg_incomming->getMsgType() == MTYPE_MULTYPACK && !body_q->empty())
-			{
-				incom_msg_state = PACKS_FINISHED;
-			}
-			else
-			{				
-				msg_incomming->clearCOMMsg();
-
-				head_q->clear();
-				body_q->clear();
-				msg_header_state = NOT_DEFINED;
-				incom_msg_state = NOT_DEFINED;
-			}				
-		}
-		else if (incom_msg_state == PACKS_STARTED)
-		{						
-			unsigned long packs_count = (unsigned long)msg_incomming->getMsgHeader()->getPackCount();
-			unsigned long packs_len = (unsigned long)msg_incomming->getMsgHeader()->getPackLen();
-
-			searchPackets(str, msg_incomming, body_q, &byte_shifts);
-			
-			int sz = body_q->count();
-			if (sz == 0) 
-			{
-				return;
-			}
-			
-			if (sz >= packs_count*packs_len) incom_msg_state = PACKS_FINISHED;					
-		}
-
-		if (incom_msg_state == PACKS_FINISHED)
-		{				
-			unsigned long packs_len = (unsigned long)msg_incomming->getMsgHeader()->getPackLen();
-			unsigned long packs_count = (unsigned long)msg_incomming->getMsgHeader()->getPackCount();
-			for (int i = 0; i < byte_shifts.count(); i++) 
-			{
-				byte_shifts[i] = byte_shifts[i]/packs_len - 1;
-			}
-			for (int i = 0; i < byte_shifts.count(); i++) 
-			{
-				if (byte_shifts[i] < 0 || byte_shifts[i] >= packs_count)
-				{
-					byte_shifts.clear();
-					break;
-				}
-			}
-
-			if (body_q->empty())
-			{
-				return;
-			}
-			bool res = decodePackets(body_q, msg_incomming);
-			if (!res)
-			{
-				qDebug() << "Bad decoding of multypack message !";
-				
-				msg_incomming->clearCOMMsg();
-				
-				body_q->clear();
-				head_q->clear();
-				
-				incom_msg_state = NOT_DEFINED;
-				msg_header_state = NOT_DEFINED;
-
-				return;
-			}
-			
-			if (!byte_shifts.isEmpty())
-			{
-				for (int i = 0; i < byte_shifts.count(); i++)
-				{
-					int index = byte_shifts[i];
-					MsgPacket *pack = msg_incomming->getPackets()[index];
-					repairPackData(pack);
-				}
-				byte_shifts.clear();
-			}
-
-			msg_incomming->setIOStatus(COM_Message::COMPLETED);
-			
-			//msg_incomming->setStored(true);
-			//emit store_COM_message(msg_incomming);
-
-			uint32_t dev_data_uid = 0;	
-			if (!sent_device_data_queue.empty())
-			{
-				DeviceData *device_data = sent_device_data_queue.get();		
-				dev_data_uid = device_data->uid;
-			}
-
-			COM_Message *msg = new COM_Message(new MsgHeader(gf_data));
-			msg_incomming->copyCOMMsg(msg);
-
-			lock_COM_Msg();
-			emit COM_message(msg, dev_data_uid);			
-			unlock_COM_Msg();
-
-			executeMultyPackMsg(msg_incomming, dev_data_uid, res);
-
-#ifdef ENCODING_TEST
-			bool bad_data_flag = true;
-			for (int k = 0; k < msg_incomming->getPackets().count(); k++)
-			{
-				MsgPacket *pack = msg_incomming->getPackets()[k];				
-				for (int m = 0; m < pack->getBlockMap().len; m++)
-				{
-					if (pack->getBlockMap().data[m] != DATA_STATE_OK) 
-					{
-						bad_data_flag = false;
-					}
-				}
-			}
-			if (!bad_data_flag)
-			{
-				qDebug() << "Bad blocks were found !";
-				incomming_msg_log->open(QIODevice::Append);
-				QString incomming_msg_str = "";
-				SmartArr msg_hdr;
-				SmartArr msg_body;
-				msg_incomming->getHeaderRawData(&msg_hdr);
-				for (int k = 0; k < msg_hdr.len; k++)
-				{
-					uint8_t ch = msg_hdr.data[k];
-					QString ch_str = QString::number(ch);
-					if (k < msg_hdr.len-1) ch_str += " ";
-					incomming_msg_str += ch_str;
-				}					
-				incomming_msg_str += "  ";
-				msg_incomming->getBodyRawData(&msg_body);
-				for (int k = 0; k < msg_body.len; k++)
-				{
-					uint8_t ch = msg_body.data[k];
-					QString ch_str = QString::number(ch);
-					if (k < msg_body.len-1) ch_str += " ";
-					incomming_msg_str += ch_str;
-				}				
-				incomming_msg_str += "\n\n";
-				QTextStream stream(incomming_msg_log);
-				stream << incomming_msg_str;
-
-				msg_hdr.destroy();
-				msg_body.destroy();
-				incomming_msg_log->close();
-			}
-#endif
-
-			head_q->clear();
-			body_q->clear();
-			msg_header_state = NOT_DEFINED;
-			incom_msg_state = NOT_DEFINED;
-		}
-	}	
-}*/
 
 void COMCommander::onDataAvailable()
 {
@@ -925,8 +450,7 @@ void COMCommander::onDataAvailable()
 
 	com_data_ready = true;
 
-	QByteArray str = COM_port->readAll();
-
+	QByteArray str = nmrtool_socket.socket->readAll();
 	if (!str.isEmpty())
 	{		
 		if (msg_header_state < FINISHED)
@@ -1001,8 +525,6 @@ void COMCommander::onDataAvailable()
 
 				emit COM_message(msg, uid);
 
-				//responseMultypackHeader(msg_incomming, uid);	
-
 				// --- responseMultypackHeader(msg_incomming, uid) -----
 				MsgHeaderInfo hdr_info;
 				hdr_info.start_marker = MTYPE_SHORT;
@@ -1029,7 +551,7 @@ void COMCommander::onDataAvailable()
 				int pack_len = msg_incomming->getMsgHeader()->getPackLen();
 				int pack_count = msg_incomming->getMsgHeader()->getPackCount();
 				int pack_delays = main_win->getCommSettings()->packet_delay * (pack_count - 1);
-				int packs_delay = 1000 + pack_delays*2.0 + (pack_len*pack_count)/(COM_port->baudRate()/8.0)*1000*2.0; // здесь 1000 - перевод из [с] в [мс], 1.5 - 50% запас по времени
+				int packs_delay = 1000 + pack_delays*2.0; // здесь 1000 - перевод из [с] в [мс], 2.0 - 100% запас по времени
 				msg_timer->start(packs_delay);
 				unlock_COM_Msg();
 
@@ -1281,11 +803,6 @@ void COMCommander::repairPackData(MsgPacket *_pack)
 	}
 
 	int shift_begin = -1;		// номер блока, с которого начался сдвиг
-	/*int j = pack_block.count()-1;
-	while (pack_block[j] == DATA_STATE_FAIL && j >= 0) 
-	{
-		shift_begin = j--;		
-	}*/
 	for (int j = pack_block.count()-1; j >= 0; j--)
 	{
 		if (pack_block[j] == DATA_STATE_FAIL) shift_begin = j;
@@ -1847,7 +1364,7 @@ void COMCommander::responseMultypackHeader(COM_Message *_msg, uint32_t _uid)
 	int pack_len = _msg->getMsgHeader()->getPackLen();
 	int pack_count = _msg->getMsgHeader()->getPackCount();
 	int pack_delays = main_win->getCommSettings()->packet_delay * (pack_count - 1);
-	int packs_delay = 1000 + pack_delays*2.0 + (pack_len*pack_count)/(COM_port->baudRate()/8.0)*1000*2.0; // здесь 1000 - перевод из [с] в [мс], 2.0 - 100% запас по времени
+	int packs_delay = 1000 + pack_delays*2.0; // здесь 1000 - перевод из [с] в [мс], 2.0 - 100% запас по времени
 	msg_timer->start(packs_delay);
 
 	//lock_COM_Msg();
@@ -1996,41 +1513,6 @@ void COMCommander::decodePackByteArray(SmartArr byte_arr, int block_len, GF_Data
 	}	
 }
 
-
-/*int COMCommander::estimateBestPackLen(int data_len, int block_len, int rs_part_len)
-{
-	int pack_count = 1;
-	int max_len = 0;
-	bool ready = false;
-	int res = 254;
-	while (!ready)
-	{
-		int full_data_len = data_len + PACK_INFO_LEN + 1;
-		double full_len = ceil(full_data_len/(double)block_len)*rs_part_len + full_data_len;
-		int opt_pack_len = (int)(ceil(ceil(full_len/pack_count)/block_len)*block_len);		
-
-		if (opt_pack_len > 254) pack_count++;
-		else
-		{
-			int final_len = opt_pack_len*pack_count;
-			if (max_len >= final_len) 
-			{
-				max_len = final_len;
-				pack_count++;
-			}
-			else 
-			{
-				res = opt_pack_len;
-				ready = true;			
-			}
-		}
-	}
-	
-	return res;
-}
-*/
-
-
 int COMCommander::estimateBestPackLen(int data_len, int block_len, int rs_part_len)
 {
 	int blocks = ceil((double)data_len/(block_len-rs_part_len));
@@ -2127,7 +1609,7 @@ void COMCommander::breakAllActions()
 
 void COMCommander::sendToSDSP(QByteArray& arr)
 {
-	COM_port->write((char*)(arr.data(), arr.size()));
+	nmrtool_socket.socket->write((char*)(arr.data(), arr.size()));
 }
 
 void COMCommander::timeClocked()
@@ -2293,638 +1775,14 @@ void COMCommander::showBadMessageAsText(COM_Message *msg, QString &text)
 }
 
 
-TcpCommunicator::TcpCommunicator(int port, QMutex *ds_mutex, QObject *parent)
-{
-	dataset_mutex = ds_mutex;
 
-	server = new QTcpServer(this);
-	this->port = port;
-	bool res = server->listen(QHostAddress::Any, port);
-	QString info = QString("<font color=%1>").arg(res ? "darkGreen" : "red");
-	if (res) 
-	{
-		info += QString(tr("Open Port")) + QString(" #%1 : OK!</font>").arg(port);
-		emit print_info(info);
-	}
-	else 
-	{
-		info += QString(tr("Open Port")) + QString(" #%1 : ").arg(port) + QString(tr("Failed!")) + QString("</font>");
-		emit error_msg(info);
-	}
-	
-	// подключение сигнала "новое клиентское подключение" к обработчику подключений
-	connect(server, SIGNAL(newConnection()), this, SLOT(incommingConnection())); 
-
-	QString file_name = "toOil.dat";
-	QString file_path = QCoreApplication::applicationDirPath();
-	out = new QFile(file_path + "/" + file_name);
-
-	is_running = false;
-}
-
-TcpCommunicator::~TcpCommunicator()
-{	
-	delete out;
-}
-
-void TcpCommunicator::run()
-{
-	is_running = true;
-	/*while (is_running)
-	{
-		msleep(1);
-	}*/
-
-	exec();
-}
-
-// обработчик подключений
-void TcpCommunicator::incommingConnection() 
-{
-	QTcpSocket *socket = server->nextPendingConnection(); // получение сокета нового входящего подключения
-	qDebug() << "New client is connecting...";
-
-	static quint64 dop = 0;
-	QDateTime ctime = QDateTime::currentDateTime();
-	quint64 time_id = ctime.toMSecsSinceEpoch() + (dop++);
-	socket->setObjectName("Client#" + QString::number(time_id));
-
-	if (!sockets.contains(socket))
-	{
-		// обработчик изменения статуса сокета-клиента
-		connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(changeState(QAbstractSocket::SocketState))); 
-		// подключение входящих запросов от клиента к обработчику
-		connect(socket, SIGNAL(readyRead()), this, SLOT(treatRequest())); 
-
-		sockets.push_back(socket);
-		socket_auths.push_back(QPair<QString,bool>(socket->objectName(), false));
-
-		//QString info = QString("<font color=darkGreen>") + QString(tr("New LogVizualizer is joined us!")) + QString(" Id = %1</font>").arg(time_id);
-		QString info = QString("<font color=darkGreen>") + QString(tr("New TCP Client is joined us!")) + QString(" Id = %1</font>").arg(time_id);
-		emit print_info(info);
-
-		qDebug() << QString("New client %1 was connected").arg(socket->objectName());
-	}	
-}
-
-// обработчик входящих сообщений от клиента
-void TcpCommunicator::treatRequest() 
-{
-	qDebug() << "Request from client";
-
-	QObject *object = QObject::sender();
-	if (!object) return;
-
-	QTcpSocket *socket = static_cast<QTcpSocket*>(object);
-	QByteArray arr = socket->readAll();
-	QString incom_request = "";
-	for (int i = 0; i < arr.size(); i++)
-	{
-		incom_request += QChar(arr[i]);
-	}
-
-	if (incom_request == "tuk-tuk!\n")
-	{
-		qDebug() << "New client is knocking...";
-		if (sockets.contains(socket))
-		{
-			QPair<QString,bool> socket_info = QPair<QString,bool>(socket->objectName(),false);
-			if (socket_auths.contains(socket_info))
-			{
-				int index = socket_auths.indexOf(socket_info);
-				if (index >= 0) socket_auths[index].second = true;
-
-				QString str = QString("voydite!\n");
-				sendDataToClient(socket, str);
-			}
-			else 
-			{
-				socket_info.second = true;
-				if (socket_auths.contains(socket_info))
-				{
-					QString str = QString("voydite!\n");
-					sendDataToClient(socket, str);
-				}
-				else return;
-			}
-		}
-
-		int count = 0;
-		for (int i = 0; i < socket_auths.count(); i++)
-		{
-			QPair<QString,bool> client = socket_auths[i];
-			if (client.second) count++;
-		}
-		emit auth_clients(count);
-	}
-	else if (incom_request.contains("Hello there!"))
-	{
-		qDebug() << "New CDiag client is knocking...";
-
-		QString str = QString("ok");
-		sendDataToClient(socket, str);
-	}
-	else
-	{
-		QStringList str_list = incom_request.split("#");		
-		
-		if (str_list.first() == "get_data")
-		{
-			if (str_list.size() != 2) return;
-
-			bool ok;
-			str_list = str_list.last().split("\n");
-			int uid_from = str_list.first().toInt(&ok);
-			if (!ok) return;
-						
-			qDebug() << QString("tcpCommander: get_data from %1").arg(uid_from);
-			emit get_data(socket->objectName(), uid_from);			
-		}
-		else
-		{		
-			QString out = "";
-			for (int i = 0; i < arr.size(); i++) out += QString::number(arr[i]) + " ";
-			qDebug() << QString("Send parameters to SDSP: %1").arg(out);
-			emit send_to_sdsp(arr);			
-		}
-	}
-}
-
-void TcpCommunicator::changeState(QAbstractSocket::SocketState state) 
-{
-	QObject *object = QObject::sender();
-	if (!object) return;
-
-	QTcpSocket *socket = static_cast<QTcpSocket *>(object);
-	if (sockets.contains(socket))
-	{
-		if (state == QTcpSocket::UnconnectedState)
-		{
-			QString info = QString("<font color=red>") + QString(tr("LogVizualizer client")) + QString(" id = %1 ").arg(socket->objectName()) + QString(tr("disconnected")) + QString("!</font>");
-			emit print_info(info);
-
-			for (int index = 0; index < socket_auths.count(); index++)
-			{
-				if (socket_auths[index].first == socket->objectName())
-				{
-					socket_auths.removeAt(index);
-				}
-			}
-			sockets.removeOne(socket);		
-
-			int count = 0;
-			for (int i = 0; i < socket_auths.count(); i++)
-			{
-				QPair<QString,bool> client = socket_auths[i];
-				if (client.second) count++;
-			}
-			emit auth_clients(count);
-		}
-	}	
-}
-
-void TcpCommunicator::sendDataToClient(const QString &sock_id, QString &str)
-{
-	foreach (QTcpSocket* sock, sockets)
-	{
-		QString str_id = sock->objectName();
-		if (str_id == sock_id) 
-		{
-			sock->write(str.toLocal8Bit());			
-		}
-	}
-}
-
-void TcpCommunicator::sendDataToClient(QTcpSocket *sock, QString &str)
-{
-	if (sockets.contains(sock))
-	{
-		QByteArray out = str.toLocal8Bit();
-		sock->write(out);
-		qDebug() << QString("My answer: %1").arg(str);
-	}
-}
-
-void TcpCommunicator::sendDataToClient(const QString &sock_id, DataSets *dss)
-{
-	if (dss->isEmpty()) return;
-
-	foreach (QTcpSocket* sock, sockets)
-	{
-		QString str_id = sock->objectName();
-		if (str_id == sock_id) 
-		{
-			int uid = dss->last()->getUId();
-			QString out_str = "";
-			prepareDataForNet(dss, out_str);
-			
-			if (!out_str.isEmpty()) 
-			{
-				QString str_id = sock->objectName();
-				if (str_id == sock_id) 
-				{
-					sock->write(out_str.toLocal8Bit());	
-					
-					qDebug() << "socket id: " << sock_id << "; uid: " << uid;
-
-					out->open(QIODevice::Append);
-					QTextStream stream(out);
-					stream << out_str << "\n";
-					out->close();					
-				}
-			}
-		}		
-	}
-}
-
-
-void TcpCommunicator::prepareDataForNet(DataSets *dss, QString &out_str)
-{	
-	if (dss->isEmpty()) 
-	{		
-		delete dss;
-		return;
-	}
-	
-	uint32_t uid = dss->last()->getUId();
-	uint32_t exp_id = dss->last()->getExpId();
-	uint32_t last_exp_id = dss->last()->getExpId();
-
-	QString ctime_str = dss->last()->getCreationTime().toString("d-M-yyyy_hh:mm:ss");
-	QPair<bool, double> depth = dss->last()->getDepth();
-
-	for (int i = dss->count()-1; i >= 0; i--)
-	{		
-		DataSet *ds = dss->at(i);
-		if (ds->getUId() != uid)
-		{
-			dss->removeAt(i);
-			delete ds;
-		}
-	}
-	for (int i = 0; i < dss->count(); i++)
-	{
-		DataSet *ds = dss->at(i);
-		if (ds->getInitialDataSize() != ds->getYData()->size()) 
-		{
-			qDebug() << QString("uid = %1, ds_name = %2: full_size = %3, actual_size = %4").arg(uid).arg(ds->getDataName()).arg(ds->getInitialDataSize()).arg(ds->getYData()->size());
-			
-			qDeleteAll(dss->begin(), dss->end());
-			delete dss;
-			return;
-		}
-		if (ds->getDataCode() == DT_SGN_RELAX && ds->getGroupIndex() == 0)
-		{
-			qDebug() << QString("uid = %1, ds_name = %2: group_index = %3").arg(uid).arg(ds->getDataName()).arg(ds->getGroupIndex());
-
-			qDeleteAll(dss->begin(), dss->end());
-			delete dss;
-			return;
-		}
-	}
-
-	QString memo = "";
-	QString d_str = "NAN              ";
-	if (depth.first) 
-	{
-		d_str = QString::number(depth.second, 'E', 6);
-		if (depth.second >= 0) d_str = QString("%1%2").arg(d_str).arg("    ");
-		else d_str = QString("%1%2").arg(d_str).arg("    ");
-	}
-	else
-	{
-		out_str = "";
-		
-		qDeleteAll(dss->begin(), dss->end());
-		delete dss;
-
-		return;
-	}
-
-	memo += d_str;
-	memo += QString("%1    ").arg(ctime_str);
-	memo += QString("%1;    ").arg(uid);
-
-	for (int i = 0; i < dss->count(); i++)
-	{
-		DataSet *ds = dss->at(i);
-
-		if (ds->getUId() == uid)
-		{						
-			QString ds_name = ds->getDataName();
-			memo += "'" + ds_name + "'    ";
-
-			int x_size = ds->getXData()->size();			
-
-			QVector<double> *x_vec = ds->getXData();
-			QVector<double> *y_vec = ds->getYData();
-			for (int j = 0; j < x_size; j++)
-			{
-				QString x_str = "";
-				QString str_value = "";
-				if (j < x_size-1)
-				{					
-					double val = x_vec->at(j);
-					x_str = QString::number(val, 'E', 6);
-					if (val >= 0) x_str = QString(" %1%2").arg(x_str).arg("    ");
-					else x_str = QString("%1%2").arg(x_str).arg("    ");
-
-					val = y_vec->at(j);
-					QString str_v = QString::number(y_vec->at(j), 'E', 6);
-					if (val >= 0) str_value = QString(" %1%2").arg(str_v).arg("    ");
-					else str_value = QString("%1%2").arg(str_v).arg("    ");					
-				}
-				else if (j < x_size)
-				{
-					double val = x_vec->at(j);
-					x_str = QString::number(val, 'E', 6);
-					if (val >= 0) x_str = QString(" %1%2").arg(x_str).arg("     ");
-					else x_str = QString("%1%2").arg(x_str).arg("     ");
-
-					val = y_vec->at(j);
-					QString str_v = QString::number(y_vec->at(j), 'E', 6);
-					if (val >= 0) str_value = QString(" %1%2").arg(str_v).arg(";    ");
-					else str_value = QString("%1%2").arg(str_v).arg(";    ");
-				}
-
-				memo += x_str + str_value;
-			}			
-		}
-	}	
-
-	qDeleteAll(dss->begin(), dss->end());
-	delete dss;
-
-	memo += QString("\n");
-	out_str = memo;
-}
-
-
-
-CDiagCommunicator::CDiagCommunicator(int port, QObject *parent)
-{
-	server = new QTcpServer(this);
-	this->port = port;
-	bool res = server->listen(QHostAddress::Any, port);
-	QString info = QString("<font color=%1>").arg(res ? "darkGreen" : "red");
-	if (res) 
-	{
-		info += QString(tr("Open Port")) + QString(" #%1 : OK!</font>").arg(port);
-		emit print_info(info);
-	}
-	else 
-	{
-		info += QString(tr("Open Port")) + QString(" #%1 : ").arg(port) + QString(tr("Failed!")) + QString("</font>");
-		emit error_msg(info);
-	}
-	
-	// подключение сигнала "новое клиентское подключение" к обработчику подключений
-	connect(server, SIGNAL(newConnection()), this, SLOT(incommingConnection())); 
-	
-	clocks = 0;
-	bytes_from_cdiag.clear();
-
-	is_running = false;
-}
-
-CDiagCommunicator::~CDiagCommunicator()
-{
-	
-}
-
-void CDiagCommunicator::run()
-{
-	is_running = true;
-	
-	exec();
-}
-
-// обработчик подключений
-void CDiagCommunicator::incommingConnection() 
-{
-	QTcpSocket *socket = server->nextPendingConnection(); // получение сокета нового входящего подключения
-	qDebug() << "New CDiag client is connecting...";
-
-	static quint64 dop = 0;
-	QDateTime ctime = QDateTime::currentDateTime();
-	quint64 time_id = ctime.toMSecsSinceEpoch() + (dop++);
-	socket->setObjectName("Client#" + QString::number(time_id));
-
-	if (!sockets.contains(socket))
-	{
-		// обработчик изменения статуса сокета-клиента
-		connect(socket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(changeState(QAbstractSocket::SocketState))); 
-		// подключение входящих запросов от клиента к обработчику
-		connect(socket, SIGNAL(readyRead()), this, SLOT(treatRequest())); 
-
-		sockets.push_back(socket);
-		socket_auths.push_back(QPair<QString,bool>(socket->objectName(), false));
-
-		//QString info = QString("<font color=darkGreen>") + QString(tr("New LogVizualizer is joined us!")) + QString(" Id = %1</font>").arg(time_id);
-		QString info = QString("<font color=darkGreen>") + QString(tr("New CDiag Client is joined us!")) + QString(" Id = %1</font>").arg(time_id);
-		emit print_info(info);
-
-		qDebug() << QString("New client %1 was connected").arg(socket->objectName());
-	}	
-}
-
-// обработчик входящих сообщений от клиента
-void CDiagCommunicator::treatRequest() 
-{
-	//qDebug() << "Request from CDiag client";
-
-	QObject *object = QObject::sender();
-	if (!object) return;
-
-	QTcpSocket *socket = static_cast<QTcpSocket*>(object);
-	QByteArray arr = socket->readAll();
-	QString incom_request = "";
-	for (int i = 0; i < arr.size(); i++)
-	{
-		incom_request += QChar(arr[i]);
-	}
-
-	if (incom_request.contains("Hello there!"))
-	{
-		qDebug() << "New CDiag client is knocking...";
-
-		QPair<QString,bool> socket_info = QPair<QString,bool>(socket->objectName(),false);
-		if (socket_auths.contains(socket_info))
-		{
-			int index = socket_auths.indexOf(socket_info);
-			if (index >= 0) socket_auths[index].second = true;
-
-			QString str = QString("ok");
-			sendDataToClient(socket, str);
-			//establishDirectAccessToSDSP(true);
-		}		
-
-		int count = 0;
-		for (int i = 0; i < socket_auths.count(); i++)
-		{
-			QPair<QString,bool> client = socket_auths[i];
-			if (client.second) count++;
-		}
-		emit auth_clients(count);
-	}
-	else
-	{
-		//QString out = "";
-		//for (int i = 0; i < arr.size(); i++) out += QString::number(arr[i]) + " ";
-		//qDebug() << QString("Send parameters to SDSP: %1").arg(out);
-		//emit send_to_sdsp(arr);	
-		
-		for (int i = 0; i < arr.size(); i++) bytes_from_cdiag.push_back(arr[i]);
-	}
-}
-
-void CDiagCommunicator::changeState(QAbstractSocket::SocketState state) 
-{
-	QObject *object = QObject::sender();
-	if (!object) return;
-
-	QTcpSocket *socket = static_cast<QTcpSocket *>(object);
-	if (sockets.contains(socket))
-	{
-		if (state == QTcpSocket::UnconnectedState)
-		{
-			QString info = QString("<font color=red>") + QString(tr("CDiag client")) + QString(" id = %1 ").arg(socket->objectName()) + QString(tr("disconnected")) + QString("!</font>");
-			emit print_info(info);
-
-			for (int index = 0; index < socket_auths.count(); index++)
-			{
-				if (socket_auths[index].first == socket->objectName())
-				{
-					socket_auths.removeAt(index);
-				}
-			}
-			sockets.removeOne(socket);		
-
-			int count = 0;
-			for (int i = 0; i < socket_auths.count(); i++)
-			{
-				QPair<QString,bool> client = socket_auths[i];
-				if (client.second) count++;
-			}
-			emit auth_clients(count);
-		}
-	}	
-}
-
-void CDiagCommunicator::sendDataToClient(const QString &sock_id, QString &str)
-{
-	foreach (QTcpSocket* sock, sockets)
-	{
-		QString str_id = sock->objectName();
-		if (str_id == sock_id) 
-		{
-			sock->write(str.toLocal8Bit());			
-		}
-	}
-}
-
-void CDiagCommunicator::sendDataToClient(QTcpSocket *sock, QString &str)
-{
-	if (sockets.contains(sock))
-	{
-		QByteArray out = str.toLocal8Bit();
-		sock->write(out);
-		qDebug() << QString("My answer: %1").arg(str);
-	}
-}
-
-void CDiagCommunicator::sendDataToClient(QVector<uint8_t> *vec)
-{
-	if (vec->isEmpty()) return;
-
-	foreach (QTcpSocket* sock, sockets)
-	{
-		QString sock_id = sock->objectName();
-
-		const char* carr = (const char*)(vec->data()); 
-		int len = vec->size();
-
-		QString str_id = sock->objectName();
-		if (str_id == sock_id) sock->write(carr, len);		
-	}
-
-	delete vec;
-}
-
-void CDiagCommunicator::establishDirectAccessToSDSP(bool flag)
-{
-	if (flag)
-	{
-		
-	}
-}
-
-void CDiagCommunicator::calcClocks()
-{
-	clocks++;
-	if (clocks > CLOCK_PERIOD_COUNT) 
-	{
-		if (bytes_from_cdiag.count() < 3) 
-		{
-			clocks = 0;
-			return;
-		}
-
-		QByteArray arr;
-		bool eod = false;
-		while (!eod && !bytes_from_cdiag.empty())
-		{
-			uint8_t byte0 = bytes_from_cdiag.first();
-			bytes_from_cdiag.pop_front();
-			if (byte0 != 0x06 && byte0 != 0x08 && byte0 != 0xC8 && byte0 != 0x88)
-			{
-				bytes_from_cdiag.clear();				
-				eod = true;
-			}
-			else if (byte0 == 0xC8 || byte0 == 0x88) 
-			{
-				arr.push_back(byte0);
-
-				QString out = "";
-				for (int i = 0; i < arr.size(); i++) out += QString::number(arr[i]) + " ";
-				qDebug() << QString("Request to SDSP: %1").arg(out);
-
-				emit send_to_sdsp(arr);
-
-				eod = true;
-			}
-			else if (bytes_from_cdiag.count() >= 2) 
-			{
-				arr.push_back(char(byte0));
-
-				uint8_t byte1 = bytes_from_cdiag.first();
-				bytes_from_cdiag.pop_front();
-				arr.push_back(char(byte1));
-
-				uint8_t byte2 = bytes_from_cdiag.first();
-				bytes_from_cdiag.pop_front();
-				arr.push_back(char(byte2));				
-			}			
-		}
-		if (!eod && !arr.isEmpty())
-		{
-			QString out = "";
-			for (int i = 0; i < arr.size(); i++) out += QString::number(arr[i]) + " ";
-			qDebug() << QString("Send data to SDSP: %1").arg(out);
-			emit send_to_sdsp(arr);
-		}
-
-		clocks = 0;	
-	}	
-}
-
-
-DepthCommunicator::DepthCommunicator(QextSerialPort *com_port, Clocker *clocker, QObject *parent)
+DepthCommunicator::DepthCommunicator(QTcpSocket *socket, Clocker *clocker, QObject *parent)
 {
 	thread_id = thid++;	
 
-	COM_port = com_port;	
-	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
+	//COM_port = com_port;	
+	this->socket = socket;
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 		
 	data_q = new QUEUE<uint8_t>(DEPTH_DATA_LEN);	
 
@@ -2976,10 +1834,18 @@ void DepthCommunicator::timeClocked()
 	}	
 }
 
+/*
 void DepthCommunicator::setPort(QextSerialPort *com_port)
 {
 	COM_port = com_port; 
 	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
+}
+*/
+
+void DepthCommunicator::setSocket(QTcpSocket *socket)
+{
+	this->socket = socket; 
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 }
 
 void DepthCommunicator::sendRequestToCOM(DepthMeterData *dmd)
@@ -2989,7 +1855,8 @@ void DepthCommunicator::sendRequestToCOM(DepthMeterData *dmd)
 	uint8_t type[] = { dmd->type };
 	if (type[0] == DEVICE_SEARCH) type[0] = DEPTH_DATA;
 
-	COM_port->write((char*)(&type[0]), 1);	
+	//COM_port->write((char*)(&type[0]), 1);	
+	socket->write((char*)(&type[0]), 1);
 }
 
 void DepthCommunicator::toMeasure(uint32_t uid, uint8_t data_type)
@@ -3000,7 +1867,8 @@ void DepthCommunicator::toMeasure(uint32_t uid, uint8_t data_type)
 
 void DepthCommunicator::onDataAvailable()
 {
-	QByteArray str = COM_port->readAll();	
+	//QByteArray str = COM_port->readAll();	
+	QByteArray str = socket->readAll();
 
 	if (!str.isEmpty())
 	{	
@@ -3050,16 +1918,16 @@ void DepthCommunicator::onDataAvailable()
 
 void DepthCommunicator::run()
 {
-	if (!COM_port)
+	if (!socket)
 	{
 		freeze();
-		emit error_msg("Bad pointer to COM-port!");
+		emit error_msg("Bad pointer to Depth Meter socket!");
 		return;
 	}
-	if (!COM_port->isOpen())
+	if (!socket->isOpen())
 	{
 		freeze();
-		emit error_msg("COM-port is closed!");
+		emit error_msg("Depth Meter socket is closed!");
 		return;
 	}
 
@@ -3068,11 +1936,6 @@ void DepthCommunicator::run()
 	is_freezed = false;
 	is_running = true;
 
-	/*is_running = true;
-	while (is_running)
-	{
-		msleep(1);
-	}*/
 	exec();
 }
 
@@ -3094,14 +1957,15 @@ void DepthCommunicator::wake()
 }
 
 
-LeuzeCommunicator::LeuzeCommunicator(QextSerialPort *com_port, Clocker *clocker, QObject *parent)
+LeuzeCommunicator::LeuzeCommunicator(QTcpSocket *socket, Clocker *clocker, QObject *parent)
 {
 	thread_id = thid++;	
 
-	COM_port = com_port;	
-	COM_port->flush();
+	//COM_port = com_port;	
+	//COM_port->flush();
+	this->socket = socket;
 
-	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 	
 	this->clocker = clocker;	
 }
@@ -3111,13 +1975,21 @@ LeuzeCommunicator::~LeuzeCommunicator()
 	
 }
 
-
+/*
 void LeuzeCommunicator::setPort(QextSerialPort *com_port)
 {
 	COM_port = com_port; 
 	COM_port->flush();
 
 	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
+}
+*/
+
+void LeuzeCommunicator::setSocket(QTcpSocket *socket)
+{
+	this->socket = socket; 
+	
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 }
 
 /*
@@ -3190,12 +2062,12 @@ void LeuzeCommunicator::sendRequestToCOM()
 	req[2] = 'M';
 	req[3] = '#';
 
-	COM_port->write((char*)(&req[0]), 4);	
+	socket->write((char*)(&req[0]), 4);	
 }
 
 void LeuzeCommunicator::onDataAvailable()
 {
-	QByteArray byte_data = COM_port->readAll();	
+	QByteArray byte_data = socket->readAll();	
 	acc_data += byte_data;
 
 	if (acc_data.count() < LEUZE_DATA_LEN) return;
@@ -3225,16 +2097,16 @@ void LeuzeCommunicator::onDataAvailable()
 
 void LeuzeCommunicator::run()
 {
-	if (!COM_port)
+	if (!socket)
 	{
 		freeze();
-		emit error_msg("Bad pointer to COM-port!");
+		emit error_msg("Bad pointer to Leuze Distance Meter object!");
 		return;
 	}
-	if (!COM_port->isOpen())
+	if (!socket->isOpen())
 	{
 		freeze();
-		emit error_msg("COM-port is closed!");
+		emit error_msg("Socket to Leuze Distance Meter is closed!");
 		return;
 	}
 
@@ -3275,12 +2147,13 @@ void LeuzeCommunicator::wake()
 
 
 
-StepMotorCommunicator::StepMotorCommunicator(QextSerialPort *com_port, QObject *parent)
+StepMotorCommunicator::StepMotorCommunicator(QTcpSocket *socket, QObject *parent)
 {
 	thread_id = thid++;	
 
-	COM_port = com_port;	
-	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));	
+	//COM_port = com_port;	
+	this->socket = socket;
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));	
 }
 
 StepMotorCommunicator::~StepMotorCommunicator()
@@ -3288,16 +2161,22 @@ StepMotorCommunicator::~StepMotorCommunicator()
 	
 }
 
-
+/*
 void StepMotorCommunicator::setPort(QextSerialPort *com_port)
 {
 	COM_port = com_port; 
 	connect(COM_port, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
 }
+*/
+void StepMotorCommunicator::setSocket(QTcpSocket *socket)
+{
+	this->socket = socket;
+	connect(socket, SIGNAL(readyRead()), this, SLOT(onDataAvailable()));
+}
 
 void StepMotorCommunicator::sendRequestToCOM(QByteArray *arr)
 {		
-	COM_port->write(arr->data(), arr->size());	
+	socket->write(arr->data(), arr->size());	
 }
 
 void StepMotorCommunicator::toSend(QString cmd)
@@ -3308,7 +2187,7 @@ void StepMotorCommunicator::toSend(QString cmd)
 
 void StepMotorCommunicator::onDataAvailable()
 {
-	QByteArray byte_data = COM_port->readAll();	
+	QByteArray byte_data = socket->readAll();	
 
 	if (!byte_data.isEmpty())
 	{
@@ -3347,16 +2226,16 @@ void StepMotorCommunicator::onDataAvailable()
 
 void StepMotorCommunicator::run()
 {
-	if (!COM_port)
+	if (!socket)
 	{
 		freeze();
-		emit error_msg("Bad pointer to COM-port!");
+		emit error_msg("Bad pointer to socket of the Step Motor!");
 		return;
 	}
-	if (!COM_port->isOpen())
+	if (!socket->isOpen())
 	{
 		freeze();
-		emit error_msg("COM-port is closed!");
+		emit error_msg("Socket to Step Motor is closed!");
 		return;
 	}
 

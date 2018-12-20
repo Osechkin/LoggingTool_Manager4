@@ -10,6 +10,7 @@
 //#include <stdlib.h>
 
 #include "../Communication/message_class.h"
+#include "../Communication/threads.h"			// added 5.07.2018
 //#include "../main_window.h"
 
 #include "scheduler_wizard.h"
@@ -77,7 +78,7 @@ SchedulerWizard::SchedulerWizard(SequenceWizard *seq_wiz, DepthTemplateWizard *d
 
 	scheduler_engine.clear();
 	executingJSeq = NULL;
-
+		
 	connect(ui->tbtAdd, SIGNAL(clicked()), this, SLOT(addItemNOP()));	
 	connect(a_exec, SIGNAL(triggered()), this, SLOT(addItem()));
 	connect(a_set_position, SIGNAL(triggered()), this, SLOT(addItem()));
@@ -86,6 +87,8 @@ SchedulerWizard::SchedulerWizard(SequenceWizard *seq_wiz, DepthTemplateWizard *d
 	connect(a_sleep, SIGNAL(triggered()), this, SLOT(addItem()));
 	connect(ui->tbtRemove, SIGNAL(clicked()), this, SLOT(removeItem()));
 	connect(a_remove_all, SIGNAL(triggered()), this, SLOT(removeAllItems()));
+
+	connect(&timer, SIGNAL(timeout()), this, SLOT(dataTimedOut()));
 
 	/*main_win = NULL;
 	foreach (QWidget *win, QApplication::topLevelWidgets())
@@ -194,12 +197,12 @@ bool SchedulerWizard::scheduling(QStringList &e)
 				}
 				
 				QStringList ee;
-				QString jseq_name = exec_obj->jseq_name;
+				QString jseq_name = exec_obj->jseq_name;				
 				if (!sequence_wizard->executeJSsequence(jseq_name, ee))
 				{					
 					e.append(tr("Error in line %1: Errors were found in Sequence %2!").arg(i+1).arg(jseq_name));
 					res = false;
-				}
+				}				
 				break;
 			}
 		case Scheduler::Sleep_Cmd:
@@ -333,7 +336,7 @@ void SchedulerWizard::process()
 	{
 		Scheduler::SchedulerObject *cmd_obj = obj_cmd_list.front();
 		//obj_cmd_list.takeFirst();
-		execute(cmd_obj);
+		execute(cmd_obj); 
 	}  
 }
 
@@ -349,8 +352,15 @@ void SchedulerWizard::execute(Scheduler::SchedulerObject* obj)
 				QString jseq_name = exec_obj->jseq_name;
 				data_file = exec_obj->data_file; 
 
-				static int nnn = 0; nnn++;
+				//static int nnn = 0; nnn++;
 				executingJSeq = sequence_wizard->getJSeqObject(jseq_name);
+				// Lines below were added 5.07.2018				
+				if (executingJSeq)
+				{
+					int _msg_req_delay = executingJSeq->lusi_Seq->main_object->getMsgReqDelay();
+					emit new_msg_req_delay(_msg_req_delay);					
+				}		
+				// --------------------------------
 				
 				QVector<uint8_t> proc_prg;
 				QVector<uint8_t> proc_instr;
@@ -373,6 +383,8 @@ void SchedulerWizard::execute(Scheduler::SchedulerObject* obj)
 					
 				uint32_t uid = nmrtool_linker->getMsgContainer()->last()->uid;
 				current_cmd = new Scheduler::CommandController(uid, Scheduler::Exec_Cmd);
+
+				//qDebug() << "Exec: " << uid; 
 			}
 			break;
 		}
@@ -407,8 +419,7 @@ void SchedulerWizard::execute(Scheduler::SchedulerObject* obj)
 								emit calibration_finished();
 							}
 
-							//current_cmd = new Scheduler::CommandController(0, Scheduler::DistanceRange_Cmd);
-							//connect(leuze_meter, SIGNAL(cmd_resulted(bool, uint32_t)), current_cmd, SLOT(processResult(bool, uint32_t)));
+							//qDebug() << "DistanceRange: pos = " << pos;							
 						}
 					}
 				}
@@ -442,6 +453,13 @@ void SchedulerWizard::execute(Scheduler::SchedulerObject* obj)
 		}
 	case Scheduler::Loop_Cmd:
 		{
+			/*Scheduler::Loop *loop_obj = qobject_cast<Scheduler::Loop*>(obj);
+			if (loop_obj)
+			{
+				removeSchedulerObj(obj);		
+				current_cmd = new Scheduler::CommandController(0, Scheduler::Loop_Cmd);		
+				current_cmd->processResult(true, 0);
+			}	*/
 			break;
 		}
 	case Scheduler::End_Cmd:
@@ -469,13 +487,28 @@ void SchedulerWizard::setSeqStatus(unsigned char _seq_finished)
 {
 	if (!current_cmd) return;
 	if (current_cmd->getType() != Scheduler::Exec_Cmd) return;
-	if (seq_already_finished) return;
-
-	if (_seq_finished)
-	{
+	//if (seq_already_finished) return;		// commented 5.07.2018	
+		
+	//These lines were replaced 5.07.2018 (see below)
+	/*if (_seq_finished)
+	{		
 		current_cmd->processResult(true, 0);
-		seq_already_finished = true;
-	}
+		seq_already_finished = true;		
+	}*/
+	bool proger_state = (_seq_finished & 0x4) >> 2;	
+	bool seq_state = (_seq_finished & 0x8) >> 3;
+	static bool data_ready = false;	
+	if (!proger_state && !seq_state) data_ready = false;
+	if (proger_state && !seq_state)  data_ready = true;
+	if (proger_state && seq_state)
+	{		
+		if (data_ready)
+		{
+			data_ready = false;				
+			setSeqFinished(true);			
+			current_cmd->processResult(true, 0);
+		}		
+	}	
 }
 
 void SchedulerWizard::setSeqStarted(bool flag)
@@ -489,7 +522,58 @@ void SchedulerWizard::setSeqStarted(bool flag)
 
 	if (flag) 
 	{
-		seq_already_finished = false;
+		// Two lines below were commented 5.07.2018
+		//seq_already_finished = false;		
+		//obj_cmd_list.takeFirst();	
+		
+		// Lines below were added 5.07.2018		
+		if (executingJSeq)
+		{			 			
+			timer.setInterval(COMCommander::msg_req_delay);
+			timer.start();
+		}		
+		// --------------------------------		
+	}
+	else
+	{		
+		QString jseq_name = exec_obj->jseq_name;
+		data_file = exec_obj->data_file; 
+
+		QVector<uint8_t> proc_prg;
+		QVector<uint8_t> proc_instr;
+		bool res = sequence_wizard->getDSPPrg(jseq_name, proc_prg, proc_instr);
+
+		int full_len = proc_prg.count() + proc_instr.count();
+		QVector<uint8_t> jseq_arr(full_len);
+		memcpy(jseq_arr.data(), proc_prg.data(), proc_prg.count());
+		memcpy(jseq_arr.data()+proc_prg.count(), proc_instr.data(), proc_instr.count());
+		unsigned int crc16_jseq = Crc16(jseq_arr.data(), full_len);
+		if (crc16_jseq != crc16_last_jseq)
+		{
+			nmrtool_linker->applyProcPrg(proc_prg, proc_instr);
+		}
+		else 
+		{
+			nmrtool_linker->startNMRTool();
+		}
+		crc16_last_jseq = crc16_jseq;
+	}
+}
+
+// Was added 5.07.2018
+void SchedulerWizard::setSeqFinished(bool flag)
+{
+	if (obj_cmd_list.isEmpty()) return;
+	Scheduler::SchedulerObject *cmd_obj = obj_cmd_list.front();
+	if (cmd_obj->type != Scheduler::Exec_Cmd) return;
+
+	Scheduler::Exec *exec_obj = qobject_cast<Scheduler::Exec*>(cmd_obj);
+	if (!exec_obj) return;
+
+	if (flag) 
+	{		
+		timer.stop();
+		seq_already_finished = false;		
 		obj_cmd_list.takeFirst();	
 	}
 	else
@@ -516,6 +600,13 @@ void SchedulerWizard::setSeqStarted(bool flag)
 		}
 		crc16_last_jseq = crc16_jseq;
 	}
+}
+
+// was added 5.07.2018
+void SchedulerWizard::dataTimedOut()
+{	
+	setSeqFinished(false);	
+	qDebug() << "Sequence restarted because no data was received!";
 }
 
 bool SchedulerWizard::generateDistanceScanPrg(QStringList &e)
@@ -709,6 +800,11 @@ void SchedulerWizard::addItem()
 				if (LeuzeDistanceMeterWidget *leuze_meter = qobject_cast<LeuzeDistanceMeterWidget*>(abs_depthmeter))
 				{
 					QPair<double,double> bounds = leuze_meter->getBounds();
+					// Three lines below were added 7.07.2018 
+					double zero_pos = leuze_meter->getZeroPos();					
+					bounds.first -= zero_pos;
+					bounds.second -= zero_pos;
+					// -------------------------------------
 					double leuze_pos = 100*leuze_meter->getOrderedDepth(); // convert to [cm]
 					dist_obj->changePosition(leuze_pos);
 					dist_obj->setBounds(bounds);

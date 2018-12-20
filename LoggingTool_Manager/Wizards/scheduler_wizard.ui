@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>382</width>
+    <width>327</width>
     <height>559</height>
    </rect>
   </property>
@@ -24,6 +24,9 @@
     <number>2</number>
    </property>
    <property name="bottomMargin">
+    <number>2</number>
+   </property>
+   <property name="spacing">
     <number>2</number>
    </property>
    <item row="0" column="0">
@@ -51,7 +54,7 @@
        <widget class="QToolButton" name="tbtAdd">
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
+          <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
@@ -78,7 +81,7 @@
        <widget class="QToolButton" name="tbtRemove">
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
+          <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
@@ -109,7 +112,7 @@
        <widget class="QToolButton" name="tbtOpen">
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
+          <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
@@ -127,7 +130,7 @@
        <widget class="QToolButton" name="tbtSave">
         <property name="font">
          <font>
-          <pointsize>10</pointsize>
+          <pointsize>9</pointsize>
          </font>
         </property>
         <property name="text">
@@ -172,6 +175,12 @@
       <enum>Qt::Vertical</enum>
      </property>
      <widget class="QTableWidget" name="tableWidgetExp">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="editTriggers">
        <set>QAbstractItemView::NoEditTriggers</set>
       </property>
@@ -217,6 +226,12 @@
        </property>
        <item>
         <widget class="QTreeWidget" name="treeWidgetParam">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <column>
           <property name="text">
            <string notr="true">1</string>

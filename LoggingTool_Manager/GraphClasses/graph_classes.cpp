@@ -172,6 +172,10 @@ DataPlot::DataPlot(QString &objectName, QSettings *settings, QWidget *parent)
 	
 	qwtPlot = new QwtPlot(frame);	
 	qwtPlot->setContentsMargins(1,1,1,1);
+	QSizePolicy size_policy = qwtPlot->sizePolicy();
+	size_policy.setHorizontalPolicy(QSizePolicy::Ignored);
+	size_policy.setVerticalPolicy(QSizePolicy::Ignored);
+	qwtPlot->setSizePolicy(size_policy);
 	//qwtPlot->setCanvasBackground(QColor(Qt::white));
 	grlout_frame->addWidget(qwtPlot, 0, 0, 1, 1);
 	
@@ -973,7 +977,7 @@ void DataPlot::savePlotSettings()
 PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plot, QSettings *_settings,  QVector<ToolChannel*> _tool_channel, QWidget *parent)
 {	
 	if (objectName().isEmpty()) setObjectName("IncomDataManager");
-	resize(466, 671);
+	//resize(466, 671);
 
 	app_settings = _settings;
 	tool_channels = _tool_channel;
@@ -986,17 +990,17 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 
 	QGridLayout *gridLayout_2 = new QGridLayout(this);
 	gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-	gridLayout_2->setContentsMargins(5, 5, 5, 5);	
+	gridLayout_2->setContentsMargins(2, 2, 2, 2);	
 	QFrame *gbxDatasets = new QFrame(this);
 	gbxDatasets->setObjectName(QStringLiteral("gbxDatasets"));	
 	gbxDatasets->setFrameShape(QFrame::StyledPanel);
 	gbxDatasets->setFrameShadow(QFrame::Plain);
 	QFont font;
-	font.setPointSize(10);
+	font.setPointSize(9);
 	gbxDatasets->setFont(font);	
 	QGridLayout *gridLayout_4 = new QGridLayout(gbxDatasets);
 	gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
-	gridLayout_4->setContentsMargins(5, 5, 5, 5);
+	gridLayout_4->setContentsMargins(2, 2, 2, 2);
 
 	QFont font1;
 	font1.setPointSize(9);
@@ -1004,7 +1008,7 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	treeWidget = new QTreeWidget(gbxDatasets);
 	treeWidget->setObjectName("treeWidget");
 	QFont font2;
-	font2.setPointSize(10);
+	font2.setPointSize(9);
 	treeWidget->setFont(font2);
 	gridLayout_4->addWidget(treeWidget, 0, 0, 1, 1);
 
@@ -1069,7 +1073,7 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	gbxAveraging->setTitle(tr("Moving Average"));
 	QGridLayout *gridLayoutAver = new QGridLayout(gbxAveraging);
 	gridLayoutAver->setObjectName(QStringLiteral("gridLayoutAver"));
-	gridLayoutAver->setContentsMargins(5, 5, 5, 5);
+	gridLayoutAver->setContentsMargins(2, 2, 2, 2);
 	QLabel *lblAver = new QLabel(gbxAveraging);
 	lblAver->setObjectName(QStringLiteral("lblAver"));
 	lblAver->setText(tr("<font color=darkblue>Window Length (Datasets):</font>"));
@@ -1123,9 +1127,12 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	gbxTimeWin->setChecked(true);
 	QGridLayout *gridLayout_6 = new QGridLayout(gbxTimeWin);
 	gridLayout_6->setObjectName(QStringLiteral("gridLayout_6"));
-	gridLayout_6->setContentsMargins(5, 5, 5, 5);
+	gridLayout_6->setContentsMargins(2, 2, 2, 2);
+	gridLayout_6->setVerticalSpacing(2);
 	QGridLayout *gridLayout = new QGridLayout();
 	gridLayout->setObjectName(QStringLiteral("gridLayout"));
+	gridLayout->setContentsMargins(2, 2, 2, 2);
+	gridLayout->setVerticalSpacing(2);
 	QLabel *label = new QLabel(gbxTimeWin);
 	label->setObjectName(QStringLiteral("label"));
 	label->setText("<font color=darkblue>" + tr("Type:") + "</font>");
@@ -1251,9 +1258,12 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	gbxFreqWin->setChecked(true);
 	QGridLayout *gridLayout_8 = new QGridLayout(gbxFreqWin);
 	gridLayout_8->setObjectName(QStringLiteral("gridLayout_8"));
-	gridLayout_8->setContentsMargins(5, 5, 5, 5);
+	gridLayout_8->setContentsMargins(2, 2, 2, 2);
+	gridLayout_8->setVerticalSpacing(2);
 	QGridLayout *gridLayout_3 = new QGridLayout();
 	gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
+	gridLayout_3->setContentsMargins(2, 2, 2, 2);
+	gridLayout_3->setVerticalSpacing(2);
 	QLabel *label_2 = new QLabel(gbxFreqWin);
 	label_2->setObjectName(QStringLiteral("label_2"));
 	label_2->setText("<font color=darkblue>" + tr("Type:") + "</font>");
@@ -1282,8 +1292,8 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	horizontalLayout_6->setSpacing(3);
 	dsbxX0Freq = new QDoubleSpinBox(gbxFreqWin);
 	dsbxX0Freq->setObjectName(QStringLiteral("dsbxX0Freq"));
-	sizePolicy1.setHeightForWidth(dsbxX0Freq->sizePolicy().hasHeightForWidth());
-	dsbxX0Freq->setSizePolicy(sizePolicy1);
+	//sizePolicy1.setHeightForWidth(dsbxX0Freq->sizePolicy().hasHeightForWidth());
+	//dsbxX0Freq->setSizePolicy(sizePolicy1);
 	dsbxX0Freq->setFont(font1);
 	dsbxX0Freq->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 	dsbxX0Freq->setMaximum(9999.99);
@@ -1313,8 +1323,8 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 	horizontalLayout_7->setSpacing(3);
 	dsbxSigmaFreq = new QDoubleSpinBox(gbxFreqWin);
 	dsbxSigmaFreq->setObjectName(QStringLiteral("dsbxSigmaFreq"));
-	sizePolicy1.setHeightForWidth(dsbxSigmaFreq->sizePolicy().hasHeightForWidth());
-	dsbxSigmaFreq->setSizePolicy(sizePolicy1);
+	//sizePolicy1.setHeightForWidth(dsbxSigmaFreq->sizePolicy().hasHeightForWidth());
+	//dsbxSigmaFreq->setSizePolicy(sizePolicy1);
 	dsbxSigmaFreq->setFont(font1);
 	dsbxSigmaFreq->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 	dsbxSigmaFreq->setMaximum(9999.99);
@@ -1336,6 +1346,8 @@ PlottedDataManager::PlottedDataManager(DataPlot *_data_plot, DataPlot *_math_plo
 
 	QGridLayout *gridLayout_7 = new QGridLayout();
 	gridLayout_7->setObjectName(QStringLiteral("gridLayout_7"));
+	gridLayout_7->setContentsMargins(2, 2, 2, 2);
+	gridLayout_7->setVerticalSpacing(2);
 	lblFreqWinFormula = new QLabel(gbxFreqWin);
 	lblFreqWinFormula->setObjectName(QStringLiteral("lblFreqWinFormula"));
 	sizePolicy2.setHeightForWidth(lblFreqWinFormula->sizePolicy().hasHeightForWidth());

@@ -17,7 +17,7 @@ class DepthInternalWidget : public AbstractDepthMeter, public Ui::InternalDepthM
 	Q_OBJECT
 
 public:
-	explicit DepthInternalWidget(Clocker *_clocker, COM_PORT *com_port, QWidget *parent = 0);
+	explicit DepthInternalWidget(Clocker *_clocker, TCP_Settings *_socket, QWidget *parent = 0);
 	~DepthInternalWidget();
 
 	void saveSettings() { }
@@ -45,7 +45,8 @@ private:
 	Clocker *clocker;
 	QTimer timer;
 
-	COM_PORT *COM_Port;
+	//COM_PORT *COM_Port;
+	TCP_Settings *dmeter_socket;
 	DepthCommunicator *depth_communicator;
 	ImpulsConnectionWidget *connectionWidget;
 

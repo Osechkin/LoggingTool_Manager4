@@ -27,10 +27,11 @@
 #include "Wizards/sdsp_wizard.h"
 #include "Wizards/logging_widget.h"
 #include "Wizards/freq_autoadjust_wizard.h"
+#include "Wizards/pressure_unit_wizard.h"
 #include "Communication/threads.h"
 #include "Communication/message_processor.h"
-#include "Communication/tcp_data_manager.h"
-#include "Communication/cdiag_data_manager.h"
+//#include "Communication/tcp_data_manager.h"
+//#include "Communication/cdiag_data_manager.h"
 #include "Common/app_settings.h"
 #include "Common/experiment_settings.h"
 #include "Common/data_containers.h"
@@ -54,8 +55,9 @@ public:
 	GF_Data *getGFDataObj() { return gf_data; }	
 	Communication_Settings *getCommSettings() { return comm_settings; }
 	Clocker *getClocker() { return clocker; }
-	QextSerialPort *getCOMPort() { return COM_Port->COM_port; }
-	QMutex *getCOMMsgMutex() { return com_msg_mutex; }	
+	//QextSerialPort *getCOMPort() { return COM_Port->COM_port; }	
+	TCP_Settings getNMRToolSocket() { return nmrtool_tcp_settings; }
+	QMutex *getCOMMsgMutex() { return com_msg_mutex; }
 	QMutex *getDataSetMutex() { return dataset_mutex; }
 	QSettings *getAppSettings() { return app_settings; }
 	ProcessingRelax &getProcessingRelax() { return processing_relax; }
@@ -67,13 +69,21 @@ public:
 private:
 	void setActions();
 	void setConnections();
-	void initCOMSettings(COM_PORT *com_port);
-	void initCOMSettings(COM_PORT *com_port, QString objName);
-	void saveCOMSettings(COM_PORT *com_port, QString objName);
+	void initNMRToolPortSettings();
+	void initDepthMeterPortSettings();
+	void initStepMotorPortSettings();
+	//void connectToNMRToolSocket(QString ip_addr, int port);
+	//void disconnectFromNMRToolSocket();
+	//void initCOMSettings(COM_PORT *com_port);
+	//void initCOMSettings(COM_PORT *com_port, QString objName);
+	//void saveCOMSettings(COM_PORT *com_port, QString objName);
+	void saveSocketSettings(TCP_Settings *tcp_settings, QString objName);
 	void initSaveDataAttrs();
+	void initExperimentSettings();
 	void initDataTypes();
+	bool findSounds(QString &finish_sound);
 	bool setupCOMPort(COM_PORT *com_port, QString _port_name);
-	bool findAvailableCOMPort(COM_PORT *com_port);    
+	//bool findAvailableCOMPort(COM_PORT *com_port);    
 	void createTabs();
 	void initExperimentBar();
 	void initSettingsBar();
@@ -117,10 +127,10 @@ private:
 	Ui::MainWindow *ui;
 	QSettings *app_settings;	
 
-	COM_PORT *COM_Port;
+	//COM_PORT *COM_Port;	
 	Communication_Settings *comm_settings;
-	COM_PORT *COM_Port_depth;				// COM-порт дл€ глубиномера
-	COM_PORT *COM_Port_stepmotor;			// COM-порт дл€ платы управлени€ шаговым двигателем
+	//COM_PORT *COM_Port_depth;				// COM-порт дл€ глубиномера
+	//COM_PORT *COM_Port_stepmotor;			// COM-порт дл€ платы управлени€ шаговым двигателем
 	GF_Data *gf_data;	
 
 	unsigned char tool_id;					// идентификационный номер каротажного прибора
@@ -134,11 +144,18 @@ private:
 	QMutex *dataset_mutex;	// мьютекс дл€ разграничени€ доступа потоков к данным типа DataSet
 
 	Clocker *clocker;
-	COMCommander *com_commander;
 	
+	TCP_Settings nmrtool_tcp_settings;
+	TCP_Settings dmeter_tcp_settings;
+	TCP_Settings stmotor_tcp_settings;
+	//QTcpSocket *nmrtool_socket;
+	//QTcpSocket *dmeter_socket;
+	//QTcpSocket *stmotor_socket;
+	
+	COMCommander *com_commander;
 	MsgProcessor *msg_processor;
-	TcpDataManager *tcp_data_manager;
-	CDiagDataManager *cdiag_data_manager;
+	//TcpDataManager *tcp_data_manager;
+	//CDiagDataManager *cdiag_data_manager;
 	QThread *thread_msg_processor; 
 
 	MsgInfoContainer *msg_data_container;	
@@ -188,6 +205,7 @@ private:
 	RxTxControlWizard *rxtxControl;
 	RFPulseControlWizard *rfpulseControl;
 	FreqAutoadjustWizard *freqAutoadjust;
+	PressureUnit *pressUnit;
 
 	QDockWidget *dock_msgConnect;
 	QDockWidget *dock_msgLog;
@@ -200,6 +218,7 @@ private:
 	QDockWidget *dock_RxTxControl;
 	QDockWidget *dock_RFPulseControl;
 	QDockWidget *dock_FreqAutoadjust;
+	QDockWidget *dock_PressureUnit;
 	
 	bool nmrtool_state;		// true = NMR Tool is started; false = NMR Tool is stopped.
 	bool sdsptool_state;	// true = SDSP Tool is started; false = SDSP Tool is stopped.
@@ -208,6 +227,7 @@ private:
 	SeqStatus sdsp_sequence_status;
 
 	DataSave save_data_attrs;
+	ExperimentSettings exper_attrs;
 	//QFile *save_data_file;
 	//bool start_data_export;				// индикатор необходимости открыть новый файл дл€ экспорта измеренных данных
 	int experiment_id;					// номер эксперимента. ”величиваетс€ на 1 при каждом запуске измерений по кнопке "Start Sequence"
@@ -225,15 +245,16 @@ private:
 private slots:    
 	void connectToNMRTool(bool flag);   
 	void disconnectFromNMRTool();
-	void setCOMPortSettings();  	
+	//void setCOMPortSettings();  	
 	void setCommunicationSettings();
-	void setTCPConnectionSettings();	
-	void setDepthMeterSettings();
-	void setStepMotorCOMSettings();
+	void setToolSettings();
+	//void setTCPConnectionSettings();	
+	//void setDepthMeterSettings();
+	//void setStepMotorCOMSettings();
 	void setProcessingSettings();
 	void setSequenceChanged();
 	void showAboutDialog();
-	void setExportToOilData();
+	//void setExportToOilData();
 	void setExportToFileData();
 	void setSaveDataAttrs(DataSave &attrs);
 	void stopNMRTool(bool flag);
@@ -249,12 +270,13 @@ private slots:
 	void startExperiment(bool flag);
 	void setExperimentalInfo();
 	void setDataFileSettings();
+	bool setExperimentSettings();
 	void setDefaultCommSettings(bool state); // { default_comm_settings_on = state; }
 	void resetCommSettings();
 
 	void storeMsgData(MsgInfo* msg_info);
 	//void plotData(DeviceData *device_data);		
-	void sendDataToNetClients(const QString &sock_id, int index);
+	//void sendDataToNetClients(const QString &sock_id, int index);
 	void sendToSDSP(QByteArray& arr);	
 	void depthDepthMeterConnected(bool flag);
 	void placeInfoToStatusBar(QString& str);				// разместить инфо на StatusBar (lblStatusInfo)

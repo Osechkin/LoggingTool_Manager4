@@ -1,29 +1,48 @@
 #include <QIcon>
 #include <QTimer>
 #include <QMessageBox>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include "tools_general.h"
 
 #include "depth_template_wizard.h"
 
 
-static int port_num = 0;
+//static int port_num = 0;
 static uint32_t uid = 0;
 
 
-DepthTemplateWizard::DepthTemplateWizard(QSettings *_settings, COM_PORT *com_port, COM_PORT *com_port_stepmotor, QStringList depth_meter_list, Clocker *clocker, QWidget *parent) : QWidget(parent), ui(new Ui::DepthTemplateWizard)
+DepthTemplateWizard::DepthTemplateWizard(QSettings *_settings, TCP_Settings *_dmeter_socket, TCP_Settings *_stmotor_socket, QStringList depth_meter_list, Clocker *clocker, QWidget *parent) : QWidget(parent), ui(new Ui::DepthTemplateWizard)
 {
 	ui->setupUi(this);
 	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 			
+	QDesktopWidget *d = QApplication::desktop();
+	int cur_x = d->width();     // returns desktop width
+	int cur_y = d->height();    // returns desktop height
+	int fontSize = 10;
+	int iconSize = 24;
+	if (cur_x < 1920) 
+	{
+		fontSize = 9;
+		iconSize = 16;
+	}
+	QFont font = this->font();	
+	font.setPointSize(fontSize);
+	ui->cboxDepthMeter->setFont(font);
+	ui->lblDepthMeter->setFont(font);
+
 	app_settings = _settings;
 
 	connectionWidget = new ImpulsConnectionWidget(this);
 	connectionWidget->setReport(ConnectionState::State_No);
 	
 	this->clocker = clocker;
-	COM_Port = com_port;
-	COM_Port_stepmotor = com_port_stepmotor;
+	//COM_Port = com_port;
+	//COM_Port_stepmotor = com_port_stepmotor;
+	dmeter_socket = _dmeter_socket;
+	stmotor_socket = _stmotor_socket;
 	
 	is_connected = false;
 	//device_is_searching = false;
@@ -37,23 +56,28 @@ DepthTemplateWizard::DepthTemplateWizard(QSettings *_settings, COM_PORT *com_por
 	}
 	if (depth_meter_list.contains("Impulse-Ustye"))
 	{
-		DepthImpulsUstyeWidget *depth_impulsustye = new DepthImpulsUstyeWidget(clocker, COM_Port);
+		DepthImpulsUstyeWidget *depth_impulsustye = new DepthImpulsUstyeWidget(app_settings, clocker, dmeter_socket);
 		depth_meters_str << depth_impulsustye->getTitle();
 		depth_meters << depth_impulsustye;
 	}
 	if (depth_meter_list.contains("InternalDepthMeter"))
 	{
-		DepthInternalWidget *depth_internal = new DepthInternalWidget(clocker, COM_Port);
+		DepthInternalWidget *depth_internal = new DepthInternalWidget(clocker, dmeter_socket);
 		depth_meters_str << depth_internal->getTitle();
 		depth_meters << depth_internal;
 	}
 	if (depth_meter_list.contains("LeuzePositionMeter"))
 	{
+		/*  Temporary removed
 		LeuzeDistanceMeterWidget *distance_meter = new LeuzeDistanceMeterWidget(app_settings, clocker, COM_Port, COM_Port_stepmotor);
 		connect(distance_meter, SIGNAL(new_core_diameter(double)), this, SIGNAL(new_core_diameter(double)));
 		//distance_meter->setVisible(false);
 		depth_meters_str << distance_meter->getTitle();
 		depth_meters << distance_meter;
+		*/
+		DepthEmulatorWidget *depth_emulator = new DepthEmulatorWidget(clocker);
+		depth_meters_str << depth_emulator->getTitle();
+		depth_meters << depth_emulator;
 	}
 
 	if (depth_meters.isEmpty())
@@ -66,40 +90,13 @@ DepthTemplateWizard::DepthTemplateWizard(QSettings *_settings, COM_PORT *com_por
 	ui->cboxDepthMeter->addItems(depth_meters_str);
 	current_depth_meter = depth_meters.first();	
 	
-	/*
-	DepthEmulatorWidget *depth_emulator = new DepthEmulatorWidget(clocker);
-	DepthImpulsUstyeWidget *depth_impulsustye = new DepthImpulsUstyeWidget(clocker, COM_Port);
-	DepthInternalWidget *depth_internal = new DepthInternalWidget(clocker, COM_Port);
-	LeuzeDistanceMeterWidget *distance_meter = new LeuzeDistanceMeterWidget(clocker, COM_Port, COM_Port_stepmotor);
-	connect(depth_impulsustye, SIGNAL(connected(bool)), this, SIGNAL(connected(bool)));
-
-	ui->gridLayoutFrame->addWidget(depth_emulator);
-
-	QStringList depth_meters_str; 
-	depth_meters_str << depth_emulator->getTitle() << depth_impulsustye->getTitle() << depth_internal->getTitle() << distance_meter->getTitle();
-	ui->cboxDepthMeter->addItems(depth_meters_str);
-	
-	depth_meters << depth_emulator << depth_impulsustye << depth_internal << distance_meter;
-	current_depth_meter = depth_emulator;
-	*/
-	
 	setConnection();	
 }
 
 DepthTemplateWizard::~DepthTemplateWizard()
 {
 	delete ui;	
-	qDeleteAll(depth_meters.begin(), depth_meters.end());
-	
-	/*if (depth_communicator != NULL)
-	{
-		depth_communicator->exit();
-		depth_communicator->wait();
-		delete depth_communicator;	
-	}*/
-		
-	//delete COM_Port->COM_port;
-	//delete COM_Port;
+	qDeleteAll(depth_meters.begin(), depth_meters.end());		
 }
 
 void DepthTemplateWizard::setConnection()
@@ -107,46 +104,6 @@ void DepthTemplateWizard::setConnection()
 	connect(ui->cboxDepthMeter, SIGNAL(currentIndexChanged(QString)), this, SLOT(changeDepthMeter(QString)));
 	connect(&timer, SIGNAL(timeout()), this, SLOT(onTime()));	
 }
-
-/*
-void DepthTemplateWizard::setDepthCommunicatorConnections()
-{
-	connect(depth_communicator, SIGNAL(measured_data(uint32_t, uint8_t, double)), this, SLOT(getMeasuredData(uint32_t, uint8_t, double)));
-	connect(depth_communicator, SIGNAL(data_timed_out(uint32_t, uint8_t)), this, SLOT(measureTimedOut(uint32_t, uint8_t)));
-	connect(this, SIGNAL(to_measure(uint32_t, uint8_t)), depth_communicator, SLOT(toMeasure(uint32_t, uint8_t)));
-}
-*/
-
-/*
-void DepthTemplateWizard::includeParameter(int state)
-{
-	QCheckBox *chbox = (QCheckBox*)sender();
-	if (!chbox) return;
-
-	bool flag;
-	if (state == Qt::Checked) flag = true;
-	else if (state == Qt::Unchecked) flag = false;
-
-	if (chbox == ui->chboxDepth) 
-	{
-		ui->lblDepth->setText("");
-		ui->cboxDepth->setEnabled(flag);
-		depth_active = flag;
-	}
-	else if (chbox == ui->chboxRate)
-	{
-		ui->lblRate->setText("");
-		ui->cboxRate->setEnabled(flag);
-		rate_active = flag;
-	}
-	else if (chbox == ui->chboxTension)
-	{
-		ui->lblTension->setText("");
-		ui->cboxTension->setEnabled(flag);
-		tension_active = flag;
-	}
-}
-*/
 
 /*
 void DepthTemplateWizard::changeDepthMeter(QString str)
@@ -225,9 +182,9 @@ void DepthTemplateWizard::changeDepthMeter(QString str)
 	switch (removed_type)
 	{
 	case AbstractDepthMeter::DepthEmulator:			depth_meters.append(new DepthEmulatorWidget(clocker)); break;
-	case AbstractDepthMeter::ImpulsUstye:			depth_meters.append(new DepthImpulsUstyeWidget(clocker, COM_Port)); break;
-	case AbstractDepthMeter::InternalDepthMeter:	depth_meters.append(new DepthInternalWidget(clocker, COM_Port)); break;
-	case AbstractDepthMeter::LeuzeDistanceMeter:	depth_meters.append(new LeuzeDistanceMeterWidget(app_settings, clocker, COM_Port, COM_Port_stepmotor)); break;
+	case AbstractDepthMeter::ImpulsUstye:			depth_meters.append(new DepthImpulsUstyeWidget(app_settings, clocker, dmeter_socket)); break;
+	case AbstractDepthMeter::InternalDepthMeter:	depth_meters.append(new DepthInternalWidget(clocker, dmeter_socket)); break;
+	//case AbstractDepthMeter::LeuzeDistanceMeter:	depth_meters.append(new LeuzeDistanceMeterWidget(app_settings, clocker, COM_Port, COM_Port_stepmotor)); break;
 	default: break;
 	}
 
@@ -236,7 +193,7 @@ void DepthTemplateWizard::changeDepthMeter(QString str)
 	ui->gridLayoutFrame->addWidget(current_depth_meter);	
 }
 
-
+/*
 bool DepthTemplateWizard::isAvailableCOMPort(COM_PORT *_com_port, int port_num)
 {
 	QString port_name = QString("COM%1").arg(port_num);
@@ -253,8 +210,9 @@ bool DepthTemplateWizard::isAvailableCOMPort(COM_PORT *_com_port, int port_num)
 
 	return false;
 }
+*/
 
-
+/*
 QStringList DepthTemplateWizard::availableCOMPorts()
 {
 	//ui->cboxPort->clear();
@@ -276,7 +234,9 @@ QStringList DepthTemplateWizard::availableCOMPorts()
 	
 	return out;
 }
+*/
 
+/*
 void DepthTemplateWizard::initCOMSettings(COM_PORT *com_port)
 {
 	com_port->COM_port = NULL;
@@ -290,6 +250,7 @@ void DepthTemplateWizard::initCOMSettings(COM_PORT *com_port)
 
 	com_port->connect_state = false;
 }
+*/
 
 /*
 void DepthTemplateWizard::getMeasuredData(uint32_t _uid, uint8_t _type, double val)
@@ -349,9 +310,9 @@ void DepthTemplateWizard::onTime()
 }
 
 
-void DepthTemplateWizard::showData(uint8_t type, double val)
-{	
-	QString str = "<font color=darkGreen><b>%1</font>";
+//void DepthTemplateWizard::showData(uint8_t type, double val)
+//{	
+//	QString str = "<font color=darkGreen><b>%1</font>";
 	
 	/*
 	switch (type)
@@ -391,8 +352,8 @@ void DepthTemplateWizard::showData(uint8_t type, double val)
 	}
 	*/
 	
-	connectionWidget->setReport(ConnectionState::State_OK);	// Проверить ! Похоже, что именно это рисует "Conn..." на внешнем виде виджета дальномера
-}
+//	connectionWidget->setReport(ConnectionState::State_OK);	// Проверить ! Похоже, что именно это рисует "Conn..." на внешнем виде виджета дальномера
+//}
 
 
 /*

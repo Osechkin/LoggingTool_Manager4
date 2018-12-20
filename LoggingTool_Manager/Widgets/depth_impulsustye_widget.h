@@ -17,7 +17,7 @@ class DepthImpulsUstyeWidget : public AbstractDepthMeter, public Ui::DepthImpuls
 	Q_OBJECT
 
 public:
-	explicit DepthImpulsUstyeWidget(Clocker *_clocker, COM_PORT *com_port, QWidget *parent = 0);
+	explicit DepthImpulsUstyeWidget(QSettings *_settings, Clocker *_clocker, TCP_Settings *_socket, QWidget *parent = 0);
 	~DepthImpulsUstyeWidget();
 
 	void saveSettings() { }
@@ -45,7 +45,9 @@ private:
 	Clocker *clocker;
 	QTimer timer;
 
-	COM_PORT *COM_Port;
+	QSettings *settings;
+	//COM_PORT *COM_Port;
+	TCP_Settings *tcp_settings;
 	DepthCommunicator *depth_communicator;
 	ImpulsConnectionWidget *connectionWidget;
 
@@ -76,13 +78,7 @@ private slots:
 	void connectDepthMeter(bool flag);
 	void changeUnits(QString str);
 	void getMeasuredData(uint32_t _uid, uint8_t _type, double val);
-	void measureTimedOut(uint32_t _uid, uint8_t _type);
-	/*void setNewDepth(double val);
-	void setNewRate(double val);
-	void startDepth(bool flag);
-	void showNewDepth();
-	void stopDepth();
-	void clocked();*/
+	void measureTimedOut(uint32_t _uid, uint8_t _type);	
 	void includeParameter(int state);
 	void onTime();
 

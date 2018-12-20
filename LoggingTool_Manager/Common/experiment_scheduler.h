@@ -86,6 +86,8 @@ namespace Scheduler
 		QByteVector comm_prg;
 		QByteVector instr_prg;
 
+		//int msg_req_delay;		// Задержка на ожидание ответа на отправленное сообщение - added 5.07.2018
+
 	public slots:
 		void changeJSeq(const QString &_jseq) { jseq_name = _jseq; emit changed(); }
 		void editFileName(const QFileInfo &_fi) { data_file = _fi.absoluteFilePath(); emit changed(); }

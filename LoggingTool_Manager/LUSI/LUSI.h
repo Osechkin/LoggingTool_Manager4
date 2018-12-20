@@ -80,9 +80,10 @@ namespace LUSI
 		Q_PROPERTY(QString author READ getAuthor WRITE setAuthor);
 		Q_PROPERTY(QString description READ getDescription WRITE setDescription);
 		Q_PROPERTY(QString datetime READ getDateTime WRITE setDateTime);
+		Q_PROPERTY(int msg_req_delay READ getMsgReqDelay WRITE setMsgReqDelay);
 
 	public:
-		Main(QString _obj_name) { setObjName(_obj_name); type = Definition::Main; }
+		Main(QString _obj_name) { setObjName(_obj_name); type = Definition::Main; msg_req_delay = 0; }
 
 	public slots:
 		QString getName() const { return name; }
@@ -97,11 +98,15 @@ namespace LUSI
 		QString getDateTime() const { return datetime; }
 		void setDateTime(QString _datetime) { datetime = _datetime; }
 
+		int getMsgReqDelay() const { return msg_req_delay; }
+		void setMsgReqDelay(int _msg_req_delay) { msg_req_delay = _msg_req_delay; }
+
 	public:
 		QString name;
 		QString author;
 		QString description;
 		QString datetime;
+		int msg_req_delay;			// задержка на ожидание ответа на отправленное сообщение (в ms) - переопределяет значение MSG_REQ_DELAY, считанное из *.ini файла
 	};
 
 	class Section : public Object

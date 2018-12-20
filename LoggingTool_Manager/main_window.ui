@@ -83,12 +83,8 @@
     </property>
     <addaction name="a_Change_Tool"/>
     <addaction name="separator"/>
-    <addaction name="a_COMPort"/>
-    <addaction name="a_Depthmeter_Connection"/>
-    <addaction name="a_StepMotor"/>
-    <addaction name="separator"/>
+    <addaction name="a_Tool_Settings"/>
     <addaction name="a_Communication"/>
-    <addaction name="a_TCP_Connection"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -104,26 +100,13 @@
     <addaction name="separator"/>
     <addaction name="a_MainToolBar"/>
    </widget>
-   <widget class="QMenu" name="menuSequencies">
-    <property name="title">
-     <string>Sequencies</string>
-    </property>
-    <widget class="QMenu" name="menuEmulation">
-     <property name="title">
-      <string>Test Sequencies</string>
-     </property>
-     <addaction name="a_CPMG_emul1"/>
-    </widget>
-    <addaction name="menuEmulation"/>
-   </widget>
    <widget class="QMenu" name="menuService">
     <property name="title">
      <string>Service</string>
     </property>
     <addaction name="a_Processing"/>
-    <addaction name="a_toOil"/>
-    <addaction name="a_toFile"/>
     <addaction name="a_DataFile_Settings"/>
+    <addaction name="a_Experiment_Settings"/>
     <addaction name="separator"/>
     <addaction name="a_SaveAllSettings"/>
    </widget>
@@ -150,7 +133,6 @@
     <addaction name="a_reset_comm_settings"/>
    </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuSequencies"/>
    <addaction name="menuService"/>
    <addaction name="menuActions"/>
    <addaction name="menuView"/>
@@ -343,6 +325,16 @@
   <action name="a_stop_sdsp">
    <property name="text">
     <string>Stop SDSP</string>
+   </property>
+  </action>
+  <action name="a_Experiment_Settings">
+   <property name="text">
+    <string>Experiment Settings...</string>
+   </property>
+  </action>
+  <action name="a_Tool_Settings">
+   <property name="text">
+    <string>Logging Tool Settings...</string>
    </property>
   </action>
  </widget>

@@ -35,7 +35,7 @@ private:
 	QString extension;
 	bool save_data;
 	bool save_all_data;
-
+	
 	QSettings *app_settings;
 
 private slots:
@@ -45,7 +45,7 @@ private slots:
 	void setFilePrefix(QString str);
 	void setFilePostfix(QString str);
 	void setExtension(QString str);
-	void setExportDataPolicy(QString str);
+	void setExportDataPolicy(QString str);	
 };
 
 #endif // EXPORT_SETTINGS_DIALOG_H

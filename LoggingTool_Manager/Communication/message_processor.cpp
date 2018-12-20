@@ -547,7 +547,9 @@ void MsgProcessor::receiveMsgFromCOMComander(COM_Message *_msg, uint32_t _uid)
 					unsigned char seq_finished = (arr.data[1] & 0x8);		// закончилась или нет последовательность в программаторе ПЛИС командой COM_STOP
 					
 					emit power_status(pow_status);
-					emit fpga_seq_status(seq_finished);
+					//emit fpga_seq_status(seq_finished);					// replaced 5.07.2018 with line below					
+					emit fpga_seq_status(arr.data[1]);
+					//qDebug() << QString("tool status = %1; proger_started = %2; seq_finished = %3").arg(arr.data[1]).arg(proger_started).arg(seq_finished);
 					
 					break;
 				}
@@ -609,7 +611,7 @@ void MsgProcessor::treatIncommingData(uint32_t _uid)
 
 			return;
 		}
-	}		
+	}
 }
 
 void MsgProcessor::reportNoResponse(uint32_t _uid)
@@ -737,6 +739,7 @@ MsgInfo::ParsingResult MsgProcessor::extractData(MsgInfo *msg_info)
 				while (byte_counter > 0)
 				{					
 					_b = (int16_t)(A*data.data[pos] - B);
+					org_data->data()[cnt] = (double)_b;
 
 					bad_org_data->data()[cnt] = (uint8_t)DATA_STATE_OK;
 					int pp = sizeof(uint8_t);

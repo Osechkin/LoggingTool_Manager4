@@ -4,6 +4,7 @@
 #include <QStyle>
 #include <QStyleFactory>
 #include <QSizePolicy>
+#include <QHostAddress>
 
 #include "nmrtool_connect_wizard.h"
 
@@ -12,7 +13,7 @@
 
 
 // **************  NMR Tool Linker ...  ******************
-NMRToolLinker::NMRToolLinker(COM_PORT *_com_port, QSettings *settings, QWidget *parent) : QWidget(parent), ui(new Ui::NMRToolLinker)
+NMRToolLinker::NMRToolLinker(TCP_Settings *nmrtool_socket, QSettings *settings, QWidget *parent) : QWidget(parent), ui(new Ui::NMRToolLinker)
 {
 	ui->setupUi(this);	
 	setParent(parent);
@@ -31,10 +32,11 @@ NMRToolLinker::NMRToolLinker(COM_PORT *_com_port, QSettings *settings, QWidget *
 	ui->tbtLogOnOff->setCheckable(true);
 	ui->tbtLogOnOff->setChecked(true);
 
-	this->com_port = _com_port;
-	if (com_port->connect_state == true) connection_state = ConnectionState::State_OK;
+	//this->com_port = _com_port;
+	this->nmrtool_socket = nmrtool_socket;
+	if (nmrtool_socket->socket->isOpen()) connection_state = ConnectionState::State_OK;
 	else connection_state = ConnectionState::State_No;
-	refreshCOMPortSettings();	
+	//refreshCOMPortSettings();	
 	
 	connWidget = new ConnectionWidget(this);
 	connWidget->setReport(connection_state);	
@@ -66,6 +68,7 @@ NMRToolLinker::~NMRToolLinker()
 	setParity(parity);
 }*/
 
+/*
 void NMRToolLinker::refreshCOMPortSettings()
 {
 	port_names.clear();
@@ -91,6 +94,7 @@ void NMRToolLinker::refreshCOMPortSettings()
 		port_names.push_front(com_port->COM_port->portName());
 	}	
 }
+*/
 
 void NMRToolLinker::setConnections()
 {
@@ -99,6 +103,7 @@ void NMRToolLinker::setConnections()
 }
 
 
+/*
 void NMRToolLinker::saveCOMPortSettings()
 {
 	if (app_settings->contains("COMPort/PortName"))
@@ -113,6 +118,7 @@ void NMRToolLinker::saveCOMPortSettings()
 		app_settings->sync();
 	}	
 }
+*/
 
 
 void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList data)
@@ -137,7 +143,7 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 						QString ctime_str = getCurrentTime();
 						if (res) 
 						{
-							com_port->connect_state = true;
+							//com_port->connect_state = true;
 							report = QString("<font color=darkGreen>") + ctime_str + tr(" Logging Tool is connected !") +  "</font>";
 							addText(report);
 							connection_state = ConnectionState::State_OK;
@@ -151,7 +157,7 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 							emit tool_settings_applied(true);
 							emit default_comm_settings(default_comm_settings_on);
 
-							saveCOMPortSettings();
+							//saveCOMPortSettings();
 						}
 						else 
 						{
@@ -159,9 +165,11 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 							addText(report);
 							//stopConnection();
 							//connection_state = ConnectionState::State_Connecting;
-							com_port->COM_port->close();
-							com_port->connect_state = false;
-							addText(QString("<font color=red>") + ctime_str + QString(tr("COM-Port is closed ")) + QString("[%1] !</font>").arg(com_port->COM_port->portName()));
+							//com_port->COM_port->close();
+							//com_port->connect_state = false;
+							connection_state = ConnectionState::State_No;
+							nmrtool_socket->socket->disconnectFromHost();
+							addText(QString("<font color=red>") + ctime_str + QString(tr("Host is closed ")) + QString("[IP: %1, port: %2] !</font>").arg(nmrtool_socket->ip_address).arg(nmrtool_socket->port));
 							
 							emit place_to_statusbar(tr(" Cannot find Logging Tool !"));								
 						}					
@@ -170,8 +178,9 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 					delete dev_data;
 
 					QApplication::restoreOverrideCursor();
-					if (connection_state != ConnectionState::State_OK && com_port->auto_search) searchForNMRTool();	
-					else emit cmd_resulted(NMRTOOL_CONNECT, connection_state);
+					//if (connection_state != ConnectionState::State_OK && com_port->auto_search) searchForNMRTool();	
+					//else emit cmd_resulted(NMRTOOL_CONNECT, connection_state);
+					emit cmd_resulted(NMRTOOL_CONNECT, connection_state);
 					break;
 				}
 			case NMRTOOL_START:
@@ -319,8 +328,7 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 							connWidget->stopBlinking();		
 							conn_state = State_OK;
 							emit control_nmrtool(true);
-							emit place_to_statusbar(tr(" The program for FPGA has been started !"));
-							////emit start_experiment(true);							
+							emit place_to_statusbar(tr(" The program for FPGA has been started !"));												
 							emit fpga_seq_started(true);
 						}
 						else 
@@ -439,7 +447,7 @@ void NMRToolLinker::showCmdResult(uint32_t _uid, QString obj_name, QVariantList 
 }
 
 
-void NMRToolLinker::setCOMPort(QString str)
+/*void NMRToolLinker::setCOMPort(QString str)
 {
 	com_port->COM_port->setPortName(str);
 }
@@ -476,7 +484,7 @@ void NMRToolLinker::setParity(QString str)
 	else if (str == "Even Parity") com_port->COM_Settings.Parity = PAR_EVEN;
 	else if (str == "Space Parity") com_port->COM_Settings.Parity = PAR_SPACE;
 	else if (str == "Mark Parity") com_port->COM_Settings.Parity = PAR_MARK;
-}
+}*/
 
 void NMRToolLinker::addText(QString text)
 {
@@ -491,20 +499,21 @@ void NMRToolLinker::applyProcPrg(QVector<uint8_t> &proc_prg, QVector<uint8_t> &p
 	uint32_t id = COM_Message::generateMsgId();
 	DeviceData *device_data = new DeviceData(DATA_PROC, "Send new program for FPGA to NMR Tool...", id);
 	
-	QVector<double> *prg_data = new QVector<double>(proc_prg.count());
+	QVector<double> *prg_data = new QVector<double>(proc_prg.count());	
 	for (int i = 0; i < prg_data->size(); i++)
 	{
-		prg_data->data()[i] = (double)proc_prg[i];
+		prg_data->data()[i] = (double)proc_prg[i];		
 	}
+	//qDebug() << prg_str;
 	device_data->fields->at(0)->code = DATA_PROC;
-	device_data->fields->at(0)->value = prg_data;
-	//msg_container.append(device_data);
+	device_data->fields->at(0)->value = prg_data;	
 
-	QVector<double> *instr_data = new QVector<double>(proc_instr.count());
+	QVector<double> *instr_data = new QVector<double>(proc_instr.count());	
 	for (int i = 0; i < instr_data->size(); i++)
 	{
-		instr_data->data()[i] = (double)proc_instr[i];
+		instr_data->data()[i] = (double)proc_instr[i];		
 	}
+	//qDebug() << instr_str;
 	device_data->fields->at(1)->code = FPGA_PRG;
 	device_data->fields->at(1)->value = instr_data;
 	msg_container.append(device_data);
@@ -685,48 +694,14 @@ void NMRToolLinker::startConnection(bool flag)
 {	
 	if (flag) 
 	{
-		QString port_name = com_port->COM_port->portName();
-		int index = port_names.indexOf(port_name);
-		if (index >= 0) port_names.takeAt(index);
-		port_names.push_front(port_name);
-
-		searchForNMRTool();		
+		nmrtool_socket->socket->connectToHost(nmrtool_socket->ip_address, nmrtool_socket->port);
+		searchForNMRTool();
 	}
 	else stopConnection();
 }
 
 void NMRToolLinker::searchForNMRTool()
-{
-	static int index = 0;		// COM Port device counter	
-	if (com_port->auto_search) 
-	{
-		if (index >= port_names.count()) 
-		{		
-			stopConnection();
-			index = 0;
-			return; 
-		}
-	}
-	else
-	{
-		if (index > 0)
-		{
-			stopConnection();
-			index = 0;
-			return; 
-		}
-	}
-
-	switch (connection_state)
-	{
-	case ConnectionState::State_OK: { index = 0; return; }	
-	case ConnectionState::State_No: { index = 0; break; }
-	default: break;
-	}
-
-	QString port_name = port_names[index++];
-	com_port->COM_port->setPortName(port_name);
-
+{	
 	QApplication::setOverrideCursor(Qt::BusyCursor);
 
 	connection_state = ConnectionState::State_Connecting;	
@@ -734,18 +709,12 @@ void NMRToolLinker::searchForNMRTool()
 	if (default_comm_settings_on) cmd_code = NMRTOOL_CONNECT_DEF;
 	emit cmd_resulted(cmd_code, connection_state);
 
-	connWidget->startBlinking();
-	bool res = openCOMPort();
-	if (!res)
-	{				
-		index = 0;	
-		stopConnection();		
-	}
-	else findNMRTool();	
-
-	if (!com_port->auto_search) index = 0;
+	connWidget->startBlinking();	
+	if (nmrtool_socket->socket->isOpen()) findNMRTool();
+	else stopConnection();	
 }
 
+/*
 bool NMRToolLinker::openCOMPort()
 {		
 	QString ctime_str = getCurrentTime();
@@ -775,16 +744,38 @@ bool NMRToolLinker::openCOMPort()
 
 	return res;
 }
+*/
+
+bool NMRToolLinker::connectNMRToolSocket()
+{
+	QString ctime_str = getCurrentTime();
+
+	bool res = false;
+	res = nmrtool_socket->socket->isOpen();
+	if (!res)
+	{
+		//com_port->connect_state = false;			
+		addText(QString("<font color=red>") + ctime_str + QString(tr("Cannot connect to Logging Tool ")) + QString("[IP: %1, Port: %2] !</font>").arg(nmrtool_socket->ip_address).arg(nmrtool_socket->port));				
+	}
+	else
+	{
+		//com_port->connect_state = true;		
+		addText(QString("<font color=darkGreen>") + ctime_str + QString(tr("Logging Tool connection is opened ")) + QString("[IP: %1, Port: %2] !</font>").arg(nmrtool_socket->ip_address).arg(nmrtool_socket->port));		
+	}
+
+	return res;
+}
 
 void NMRToolLinker::stopConnection()
 {
 	QString ctime_str = getCurrentTime();
 
-	com_port->COM_port->close();
-	com_port->connect_state = false;
+	nmrtool_socket->socket->disconnectFromHost();
+	//com_port->COM_port->close();
+	//com_port->connect_state = false;
 	//if (connection_state != ConnectionState::State_Connecting) 
 	{
-		addText(QString("<font color=red>") + ctime_str + QString(tr("COM-Port is closed ")) + QString("[%1] !</font>").arg(com_port->COM_port->portName()));
+		addText(QString("<font color=red>") + ctime_str + QString(tr("Logging Tool connection is closed ")) + QString("[IP: %1, Port: %2] !</font>").arg(nmrtool_socket->ip_address).arg(nmrtool_socket->port));
 	}
 
 	connection_state = ConnectionState::State_No;
@@ -799,7 +790,7 @@ void NMRToolLinker::stopConnection()
 void NMRToolLinker::findNMRTool()
 {
 	QString ctime_srt = getCurrentTime();
-	addText(QString("<font color=darkBlue>%1").arg(ctime_srt) + QString(tr("Connect to Logging Tool ")) + QString("[%1] ...</font>").arg(com_port->COM_port->portName()));
+	addText(QString("<font color=darkBlue>%1").arg(ctime_srt) + QString(tr("Connect to Logging Tool ")) + QString("[IP: %1, Port: %2] ...</font>").arg(nmrtool_socket->ip_address).arg(nmrtool_socket->port));
 
 	uint32_t id = COM_Message::generateMsgId();
 	if (default_comm_settings_on)

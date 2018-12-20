@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QtMultimedia/QSound>
 
 #include "main_window.h"
 
@@ -15,17 +16,19 @@
 #include "qwt_scale_engine.h"
 #include "qwt_scale_widget.h"
 
-#include "Dialogs/comport_dialog.h"
+//#include "Dialogs/comport_dialog.h"
 #include "Dialogs/communication_dialog.h"
 #include "Dialogs/axis_dialog.h"
-#include "Dialogs/tcp_server_dialog.h"
-#include "Dialogs/cdiag_server_dialog.h"
+//#include "Dialogs/tcp_server_dialog.h"
+//#include "Dialogs/cdiag_server_dialog.h"
 #include "Dialogs/about_dialog.h"
 #include "Dialogs/processing_settings_dialog.h"
 #include "Dialogs/export_settings_dialog.h"
-#include "Dialogs/export_toOil_dialog.h"
-#include "Dialogs/depth_server_dialog.h"
+#include "Dialogs/experiment_settings_dialog.h"
+#include "Dialogs/export_toFile_dialog.h"
+//#include "Dialogs/depth_server_dialog.h"
 #include "Dialogs/tools_dialog.h"
+#include "Dialogs/tool_settings_dialog.h"
 
 #include "Wizards/depth_template_wizard.h"
 
@@ -39,7 +42,6 @@
 #include "DMDeconv/DMDeconv.h"
 
 #include "Common/profiler.h"
-
 
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -57,6 +59,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	memset(&arr[0], 0x0, 8);
 	ring_buff.get_bytes(&arr[0], 5, &ok);*/
 	
+	clocker = new Clocker();
+	clocker->setPeriod(CLOCK_PERIOD);
+	clocker->start(QThread::IdlePriority);
 
 	loadToolsSettings();
 	current_tool_settings = NULL;	
@@ -77,40 +82,34 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	gf_data->index_ftr = 0;
 
 	loadCommSettings();	
+		
+	initNMRToolPortSettings();
+	initDepthMeterPortSettings();
+	initStepMotorPortSettings();
 
-	QString port_name = "COM5";
-	if (app_settings->contains("COMPort/PortName")) port_name = app_settings->value("COMPort/PortName").toString();
-
-	clocker = new Clocker();
-	clocker->setPeriod(CLOCK_PERIOD);
-	clocker->start(QThread::IdlePriority);
-
-	COM_Port = new COM_PORT;
-	initCOMSettings(COM_Port);
-	bool conn_res = setupCOMPort(COM_Port, QString(port_name));
-	if (!conn_res) conn_res = findAvailableCOMPort(COM_Port);
-	if (conn_res)
+	//COM_Port = new COM_PORT;
+	//initCOMSettings(COM_Port);
+	//bool conn_res = setupCOMPort(COM_Port, QString(port_name));
+	//if (!conn_res) conn_res = findAvailableCOMPort(COM_Port);
+	//if (conn_res)
 	{
 		com_msg_mutex = new QMutex(QMutex::Recursive);
-
 		com_commander = new COMCommander(this);
-		//com_commander->moveToThread(com_commander);
 		com_commander->setNMRToolState(false);					// NMR Tool has not started yet.
-		//com_commander->start(QThread::HighPriority);			// This is not start NMR Tool ! (Just start com_commander thread)
 		com_commander->start(QThread::NormalPriority);
 
 		msg_processor = new MsgProcessor(com_msg_mutex);
-		//msg_processor->moveToThread(msg_processor);		
+		//msg_processor->moveToThread(msg_processor);
 		//msg_processor->start(QThread::HighPriority);
 
 		msg_data_container = new MsgInfoContainer; 
 		dataset_storage = new DataSets;
 	}
-	else
-	{
-		int ret = QMessageBox::warning(this, "Warning!", tr("Available COM-Ports haven't been found!"), QMessageBox::Ok);			
-		exit(0);
-	}
+	//else
+	//{
+	//	int ret = QMessageBox::warning(this, "Warning!", tr("Available COM-Ports haven't been found!"), QMessageBox::Ok);
+	//	exit(0);
+	//}
 	
 
 	ui->setupUi(this);
@@ -132,7 +131,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		
 	
 	dataset_mutex = new QMutex(QMutex::Recursive);
-	tcp_data_manager = new TcpDataManager(dataset_mutex);
+	//tcp_data_manager = new TcpDataManager(dataset_mutex);
 
     dock_msgConnect = new QDockWidget(tr("Logging Tool Console"), this);
 	QFont fontConnect = dock_msgConnect->font();
@@ -140,7 +139,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	fontConnect.setBold(true);
 	dock_msgConnect->setFont(fontConnect);
 	dock_msgConnect->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
-	nmrtoolLinker = new NMRToolLinker(COM_Port, app_settings, dock_msgConnect);
+	nmrtoolLinker = new NMRToolLinker(&nmrtool_tcp_settings, app_settings, dock_msgConnect);
 	QFont font_nmrTool = nmrtoolLinker->getUI()->tbtClearAll->font();
 	font_nmrTool.setBold(false);
 	nmrtoolLinker->getUI()->tbtClearAll->setFont(font_nmrTool);
@@ -167,6 +166,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_msgLog->setWidget(msgLog);    
 	addDockWidget(Qt::BottomDockWidgetArea, dock_msgLog);
 	dock_msgLog->setVisible(true);
+
+	dock_PressureUnit = new QDockWidget(tr("Pressure Unit"), this);
+	dock_PressureUnit->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+	QFont fontPressureUnit = dock_PressureUnit->font();
+	fontPressureUnit.setPointSize(9);
+	fontPressureUnit.setBold(true);
+	dock_PressureUnit->setFont(fontPressureUnit);
+	pressUnit = new PressureUnit(dock_PressureUnit);
+	dock_PressureUnit->setWidget(pressUnit);
+	addDockWidget(Qt::BottomDockWidgetArea, dock_PressureUnit);
+	dock_PressureUnit->setVisible(true);
 	
 	dock_FreqAutoadjust = new QDockWidget(tr("Frequency Autotune"), this);
 	dock_FreqAutoadjust->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
@@ -201,6 +211,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	addDockWidget(Qt::BottomDockWidgetArea, dock_RFPulseControl);
 	dock_RFPulseControl->setVisible(true);
 		
+	/*
 	QString depth_port_name = "COM9";
 	if (app_settings->contains("DepthMeter/PortName")) depth_port_name = app_settings->value("DepthMeter/PortName").toString();
 	else app_settings->setValue(("DepthMeter/PortName"), QVariant(depth_port_name));
@@ -212,7 +223,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	{
 		int ret = QMessageBox::warning(this, "Warning!", tr("Available COM-Port for Depth Meter hasn't been found!"), QMessageBox::Ok);	
 		exit(0);
-	}
+	}	
 	QString stepmotor_port_name = "COM8";
 	if (app_settings->contains("StepMotor/PortName")) stepmotor_port_name = app_settings->value("StepMotor/PortName").toString();
 	else app_settings->setValue(("StepMotor/PortName"), QVariant(stepmotor_port_name));
@@ -225,6 +236,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 		int ret = QMessageBox::warning(this, "Warning!", tr("Available COM-Port for Step Motor control system hasn't been found!"), QMessageBox::Ok);	
 		exit(0);
 	}
+	*/
 
 	QStringList depth_meter_list; 
 	depth_meter_list << current_tool.depth_monitors;
@@ -235,7 +247,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	fontDepthTemplate.setPointSize(9);
 	fontDepthTemplate.setBold(true);
 	dock_depthTemplate->setFont(fontDepthTemplate);
-	depthTemplate = new DepthTemplateWizard(app_settings, COM_Port_depth, COM_Port_stepmotor, depth_meter_list, clocker, dock_depthTemplate);
+	depthTemplate = new DepthTemplateWizard(app_settings, &dmeter_tcp_settings, &stmotor_tcp_settings, depth_meter_list, clocker, dock_depthTemplate);
 	fontDepthTemplate.setBold(false);
 	depthTemplate->getUI()->cboxDepthMeter->setFont(fontDepthTemplate);
 	depthTemplate->getUI()->lblDepthMeter->setFont(fontDepthTemplate);
@@ -252,7 +264,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_sequenceProc->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::NoDockWidgetArea);
 	//dock_sequenceProc->setMinimumWidth(350);
 	sequenceProc = new SequenceWizard(app_settings, dock_sequenceProc);	
-	sequenceProc->setMinimumWidth(400);
+	sequenceProc->setMinimumWidth(300);
 	sequenceProc->resize(500, sequenceProc->height());
 	QFont font_proc = sequenceProc->getUI()->lblSeqFile->font();
 	font_proc.setBold(false);
@@ -278,7 +290,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_sdspProc->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::NoDockWidgetArea);
 	//dock_sequenceProc->setMinimumWidth(350);
 	sdspProc = new SDSPWizard(app_settings, dock_sdspProc);	
-	sdspProc->setMinimumWidth(400);
+	sdspProc->setMinimumWidth(300);
 	sdspProc->resize(500, sdspProc->height());
 	QFont font_sdsp_proc = sdspProc->getUI()->lblSeqFile->font();
 	font_sdsp_proc.setBold(false);
@@ -300,6 +312,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_expScheduler->setFont(fontManager);
 	dock_expScheduler->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::NoDockWidgetArea);
 	expScheduler = new SchedulerWizard(sequenceProc, depthTemplate, nmrtoolLinker, clocker, dock_expScheduler);	
+	expScheduler->setMinimumWidth(300);
+	expScheduler->resize(500, sdspProc->height());
 	expScheduler->setJSeqList(sequenceProc->getSeqFileList());
 	//expScheduler->setJSeqFile(sequenceProc->getJSeqFile());
 	dock_expScheduler->setWidget(expScheduler);    
@@ -343,6 +357,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	relax_widget = new RelaxationWidget(ui->tabDataViewer, app_settings);
 		
 	osc_widget = new OscilloscopeWidget(ui->tabOscilloscope, app_settings, tool_channels);
+	//ui->tabOscilloscope->setVisible(false);
 	//ui->tabOscilloscope->setContentsMargins(1,1,1,1);
 
 	monitoring_widget = new MonitoringWidget(app_settings, ui->tabMonitoring);
@@ -356,6 +371,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	grlout_sdsp->addWidget(sdsp_widget, 0, 0, 1, 1);
 
 	logging_widget = new LoggingWidget(tool_channels, ui->tabLogging); 
+	QSizePolicy size_policy = logging_widget->sizePolicy();
+	size_policy.setHorizontalPolicy(QSizePolicy::Expanding);
+	logging_widget->setSizePolicy(size_policy);
+
 	double core_d = 0.10; 
 	double core_porosity = 30;
 	double core_diameter = 0.10;
@@ -409,6 +428,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	initExperimentBar();
 	initStatusBar();
 	initSaveDataAttrs();
+	initExperimentSettings();
 	initDataTypes();
 	initExperimentalInfo();
 		
@@ -434,7 +454,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 	//setDefaultCommSettings(true);
 	default_comm_settings_on = false;
-	nmrtoolLinker->setDefaultCommSettingsState(default_comm_settings_on);
+	nmrtoolLinker->setDefaultCommSettingsState(default_comm_settings_on);	
 }
 
 MainWindow::~MainWindow()
@@ -450,13 +470,17 @@ MainWindow::~MainWindow()
 	delete relax_widget;
 	delete osc_widget;
 
-	delete COM_Port->COM_port;
+	/*delete COM_Port->COM_port;
 	delete COM_Port;
 	delete comm_settings;
 	delete COM_Port_depth->COM_port;
 	delete COM_Port_depth;
 	delete COM_Port_stepmotor->COM_port;
 	delete COM_Port_stepmotor;
+	*/
+	delete nmrtool_tcp_settings.socket;
+	delete dmeter_tcp_settings.socket;
+	delete stmotor_tcp_settings.socket;
 
 	//delete expScheduler;
 
@@ -473,7 +497,7 @@ MainWindow::~MainWindow()
 	msg_data_container->clear();
 	delete msg_data_container;*/
 	
-	delete tcp_data_manager;
+	//delete tcp_data_manager;
 
 	qDeleteAll(msg_data_container->begin(), msg_data_container->end());
 	delete msg_data_container;
@@ -596,6 +620,7 @@ void MainWindow::setActions()
 	ui->a_SaveAllSettings->setIcon(QIcon(":/images/save_settings.png"));		
 	ui->a_Processing->setIcon(QIcon(":/images/settings2.png"));
 	ui->a_DataFile_Settings->setIcon(QIcon(":/images/export_data.png"));
+	ui->a_Experiment_Settings->setIcon(QIcon(":/images/experiment_settings.png"));
 }
 
 void MainWindow::setConnections()
@@ -605,16 +630,18 @@ void MainWindow::setConnections()
 
 	connect(ui->a_COMPort, SIGNAL(triggered()), this, SLOT(setCOMPortSettings()));   
 	connect(ui->a_Communication, SIGNAL(triggered()), this, SLOT(setCommunicationSettings()));
-	connect(ui->a_TCP_Connection, SIGNAL(triggered()), this, SLOT(setTCPConnectionSettings()));
+	//connect(ui->a_TCP_Connection, SIGNAL(triggered()), this, SLOT(setTCPConnectionSettings()));
 	//connect(ui->a_CDiag_Connection, SIGNAL(triggered()), this, SLOT(setCDiagConnectionSettings()));
 	connect(ui->a_Processing, SIGNAL(triggered()), this, SLOT(setProcessingSettings()));
 	connect(ui->a_About, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 	//connect(ui->a_toOil, SIGNAL(triggered()), this, SLOT(setExportToOilData()));
 	//connect(ui->a_toFile, SIGNAL(triggered()), this, SLOT(setExportToFileData()));
-	connect(ui->a_Depthmeter_Connection, SIGNAL(triggered()), this, SLOT(setDepthMeterSettings()));
-	connect(ui->a_StepMotor, SIGNAL(triggered()), this, SLOT(setStepMotorCOMSettings()));
+	//connect(ui->a_Depthmeter_Connection, SIGNAL(triggered()), this, SLOT(setDepthMeterSettings()));
+	//connect(ui->a_StepMotor, SIGNAL(triggered()), this, SLOT(setStepMotorCOMSettings()));
+	connect(ui->a_Tool_Settings, SIGNAL(triggered()), this, SLOT(setToolSettings()));
 	connect(ui->a_Change_Tool, SIGNAL(triggered()), this, SLOT(changeLoggingTool()));
 	connect(ui->a_DataFile_Settings, SIGNAL(triggered()), this, SLOT(setDataFileSettings()));
+	connect(ui->a_Experiment_Settings, SIGNAL(triggered()), this, SLOT(setExperimentSettings()));
 	
 	connect(dock_RxTxControl, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), rxtxControl, SLOT(changeLocation(Qt::DockWidgetArea)));
 	connect(dock_RFPulseControl, SIGNAL(dockLocationChanged(Qt::DockWidgetArea)), rfpulseControl, SLOT(changeLocation(Qt::DockWidgetArea)));
@@ -630,7 +657,7 @@ void MainWindow::setConnections()
 	connect(logging_widget, SIGNAL(new_calibration_coef_toCfg(double, ToolChannel*)), this, SLOT(saveNewCalibrCoefficientToCfg(double, ToolChannel*)));
 	connect(logging_widget, SIGNAL(new_calibration_coef(double, ToolChannel*)), this, SLOT(saveNewCalibrCoefficient(double, ToolChannel*)));
 
-	connect(tcp_data_manager, SIGNAL(get_data(const QString&, int)), this, SLOT(sendDataToNetClients(const QString&, int)));
+	//connect(tcp_data_manager, SIGNAL(get_data(const QString&, int)), this, SLOT(sendDataToNetClients(const QString&, int)));
 
 	//connect(depthMonitor, SIGNAL(connected(bool)), this, SLOT(depthDepthMeterConnected(bool)));
 	connect(depthTemplate, SIGNAL(connected(bool)), this, SLOT(depthDepthMeterConnected(bool)));
@@ -659,6 +686,8 @@ void MainWindow::setConnections()
 	connect(nmrtoolLinker, SIGNAL(tool_settings_applied(bool)), this, SLOT(setToolSettingsApplied(bool)));
 	connect(nmrtoolLinker, SIGNAL(fpga_seq_started(bool)), expScheduler, SLOT(setSeqStarted(bool)));
 	connect(nmrtoolLinker, SIGNAL(default_comm_settings(bool)), this, SLOT(setDefaultCommSettings(bool)));
+
+	connect(pressUnit, SIGNAL(send_msg(DeviceData*, const QString&)), msg_processor, SLOT(sendMsg(DeviceData*, const QString&)));
 	
 	connect(&experiment_timer, SIGNAL(timeout()), this, SLOT(setExperimentalInfo()));
 
@@ -677,6 +706,7 @@ void MainWindow::setConnections()
 	connect(expScheduler, SIGNAL(started()), this, SLOT(setExpSchedulerStarted()));
 	connect(expScheduler, SIGNAL(calibration_started()), logging_widget, SLOT(startCalibration()));
 	connect(expScheduler, SIGNAL(calibration_finished()), logging_widget, SLOT(finishCalibration()));
+	connect(expScheduler, SIGNAL(new_msg_req_delay(int)), com_commander, SLOT(setMsgReqDelay(int)));		// added 5.07.2018
 
 	connect(clocker, SIGNAL(clock()), com_commander, SLOT(timeClocked()));	
 	connect(this, SIGNAL(stop_clocker()), clocker, SLOT(stopThread()));
@@ -771,9 +801,9 @@ void MainWindow::initStatusBar()
 	TrafficWidget *traffic_widget = nmrtoolLinker->getTrafficWidget();
 	ConnectionWidget *conn_widget = nmrtoolLinker->getConnectionWidget();	
 
-	TcpConnectionWidget *tcp_conn_widget = tcp_data_manager->getTcpConnectionWidget();
-	this->statusBar()->addPermanentWidget(tcp_conn_widget, 10);
-	//ImpulsConnectionWidget *impuls_widget = depthMonitor->getConnectionWidget();
+	//TcpConnectionWidget *tcp_conn_widget = tcp_data_manager->getTcpConnectionWidget();
+	//this->statusBar()->addPermanentWidget(tcp_conn_widget, 10);
+	
 	ImpulsConnectionWidget *impuls_widget = depthTemplate->getConnectionWidget();
 	this->statusBar()->addPermanentWidget(impuls_widget, 15);
 	this->statusBar()->addPermanentWidget(conn_widget, 15); 
@@ -1145,6 +1175,8 @@ void MainWindow::applyToolSettings()
 		QString tab_name = widget->objectName();
 		if (tab_name == "tabSDSP" || tab_name == "SDSPWidget") ui->tabWidget->removeTab(index);
 		if (tab_name == "tabMonitoring") ui->tabWidget->removeTab(index);	
+		//if (tab_name == "tabOscilloscope") ui->tabWidget->removeTab(index);	
+		//if (tab_name == "tabDataViewer") ui->tabWidget->removeTab(index);	
 	}
 
 	QStringList tab_widgets = current_tool.tab_widgets;
@@ -1186,8 +1218,9 @@ void MainWindow::setToolId(unsigned char id)
 	}
 
 	a_connect->setChecked(false);
-	nmrtoolLinker->startConnection(false);	
-	disconnect(COM_Port->COM_port, SIGNAL(readyRead()), com_commander, SLOT(onDataAvailable()));
+	//nmrtoolLinker->startConnection(false);	
+	//disconnect(COM_Port->COM_port, SIGNAL(readyRead()), com_commander, SLOT(onDataAvailable()));
+	//nmrtool_tcp_settings.socket->disconnectFromHost();
 	
 	QList<ToolInfo> tools;	
 	for (int i = 0; i < tools_settings.count(); i++)
@@ -1231,7 +1264,42 @@ void MainWindow::setToolId(unsigned char id)
 		{			
 			if (uid == id)
 			{
-				current_tool.id = id;
+				QString msg_text = tr("Tool id = %1 [%2] was received from Logging Tool! Apply new id ?").arg(id).arg(tool_type);
+				QMessageBox msgBox;
+				msgBox.setText(tr("Warning!"));
+				msgBox.setInformativeText(msg_text);
+				msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+				msgBox.setDefaultButton(QMessageBox::Yes);
+				int ret = msgBox.exec();
+				if (ret == QMessageBox::Yes)
+				{
+					//Нажата кнопка Yes
+					current_tool.id = id;
+					current_tool.file_name = tool_file;
+					current_tool.type = tool_type;
+					current_tool_was_applied = false;
+
+					app_settings->setValue("Tool/Id", QVariant(current_tool.id));
+					app_settings->setValue("Tool/Type", QVariant(current_tool.type));
+					app_settings->setValue("Tool/CfgFile", QVariant(current_tool.file_name));
+
+					if (current_tool_settings != NULL) delete current_tool_settings;
+					current_tool_settings = new QSettings(current_tool.file_name, QSettings::IniFormat, this);
+					setToolChannels(current_tool_settings);
+					logging_widget->resetLoggingPlots(tool_channels);
+					applyToolSettings();
+
+					a_connect->setChecked(true);
+					//nmrtoolLinker->startConnection(true);	
+
+					tool_exist = true;
+				}
+				else
+				{
+					return;
+				}
+
+				/*current_tool.id = id;
 				current_tool.file_name = tool_file;
 				current_tool.type = tool_type;
 				current_tool_was_applied = false;
@@ -1252,6 +1320,7 @@ void MainWindow::setToolId(unsigned char id)
 				tool_exist = true;
 
 				int ret = QMessageBox::warning(this, tr("Warning!"), tr("Tool id = %1 was received from Logging Tool! New id was applied.").arg(id), QMessageBox::Ok, QMessageBox::Ok);
+				*/
 			}			
 		}		
 	}
@@ -1290,7 +1359,9 @@ void MainWindow::setToolId(unsigned char id)
 		}
 	}
 
-	connect(COM_Port->COM_port, SIGNAL(readyRead()), com_commander, SLOT(onDataAvailable()));
+	
+	//connect(COM_Port->COM_port, SIGNAL(readyRead()), com_commander, SLOT(onDataAvailable()));
+	//connect(nmrtool_tcp_settings.socket, SIGNAL(readyRead()), com_commander, SLOT(onDataAvailable()));
 
 	//if (tool_exist)
 	//{
@@ -1569,9 +1640,42 @@ double MainWindow::getDepthDisplacement(uint8_t _channel_id, QVector<ToolChannel
 	return x;
 }
 
-
-void MainWindow::saveCOMSettings(COM_PORT *com_port, QString objName)
+bool MainWindow::findSounds(QString &finish_sound)
 {
+	finish_sound = "";
+	if (app_settings->contains("Sounds/FinishExperiment")) finish_sound = app_settings->value("Sounds/FinishExperiment").toString();
+	
+	QString path = QDir::currentPath() + "/Sounds";
+	QDir dir(path);	
+	QStringList file_list = dir.entryList(QDir::Files | QDir::NoSymLinks);	
+	for (int i = 0; i < file_list.count(); i++)
+	{
+		file_list[i] = path + "/" + file_list[i];
+	}
+	for (int i = file_list.count()-1; i >= 0; --i)
+	{
+
+		if (file_list[i].split(".").last().toLower() != QString("wav")) 
+		{
+			file_list.removeAt(i);
+		}
+	}
+	
+	if (finish_sound.isEmpty() && !file_list.isEmpty()) finish_sound = file_list.first();
+	
+	if (!file_list.contains(finish_sound) && !file_list.isEmpty()) finish_sound = file_list.first();
+	
+	if (!finish_sound.isEmpty()) 
+	{		
+		app_settings->setValue("Sounds/FinishExperiment", finish_sound);
+	}
+
+	return !finish_sound.isEmpty();
+}
+
+
+/*void MainWindow::saveCOMSettings(COM_PORT *com_port, QString objName)
+{	
 	QString key_value = QString("%1/PortName").arg(objName);
 	app_settings->setValue(key_value, com_port->COM_port->portName());
 
@@ -1592,11 +1696,20 @@ void MainWindow::saveCOMSettings(COM_PORT *com_port, QString objName)
 
 	key_value = QString("%1/Timeout_ms").arg(objName);
 	app_settings->setValue(key_value, com_port->COM_Settings.Timeout_Millisec);
+}*/
+
+void MainWindow::saveSocketSettings(TCP_Settings *tcp_settings, QString objName)
+{
+	QString key_value = QString("%1/IP_Address").arg(objName);
+	app_settings->setValue(key_value, tcp_settings->ip_address);
+
+	key_value = QString("%1/Port").arg(objName);
+	app_settings->setValue(key_value, tcp_settings->port);
 
 	app_settings->sync();
 }
 
-void MainWindow::initCOMSettings(COM_PORT *com_port)
+/*void MainWindow::initCOMSettings(COM_PORT *com_port)
 {
 	com_port->COM_port = 0;
 	
@@ -1679,7 +1792,94 @@ void MainWindow::initCOMSettings(COM_PORT *com_port, QString objName)
 	com_port->connect_state = false;
 	com_port->auto_search = false;
 }
+*/
 
+void MainWindow::initNMRToolPortSettings()
+{
+	int nmrtool_port_id = 3004;
+	QString nmrtool_ip_addr = "127.0.0.1";
+
+	// Read IP Address	
+	QString key_value = "NMRTool/IP_Address";
+	if (app_settings->contains(key_value)) nmrtool_ip_addr = app_settings->value(key_value).toString();
+	else app_settings->setValue(key_value, nmrtool_ip_addr);
+	
+	// Read TCP Port number
+	bool _ok;
+	key_value = "NMRTool/Port";
+	if (app_settings->contains(key_value)) nmrtool_port_id = app_settings->value(key_value).toInt(&_ok);
+	else app_settings->setValue(key_value, nmrtool_port_id);
+	if (!_ok) 
+	{		
+		app_settings->setValue(key_value, nmrtool_port_id);
+	}
+
+	nmrtool_tcp_settings.socket = new QTcpSocket(this);
+	nmrtool_tcp_settings.ip_address = nmrtool_ip_addr;
+	nmrtool_tcp_settings.port = nmrtool_port_id;
+}
+
+void MainWindow::initDepthMeterPortSettings()
+{
+	int dmeter_port_id = 3006;
+	QString dmeter_ip_addr = "127.0.0.1";
+
+	// Read IP Address	
+	QString key_value = "DepthMeter/IP_Address";
+	if (app_settings->contains(key_value)) dmeter_ip_addr = app_settings->value(key_value).toString();
+	else app_settings->setValue(key_value, QVariant(dmeter_ip_addr));
+
+	// Read TCP Port number
+	bool _ok;
+	key_value = "DepthMeter/Port";
+	if (app_settings->contains(key_value)) dmeter_port_id = app_settings->value(key_value).toInt(&_ok);
+	else app_settings->setValue(key_value, dmeter_port_id);
+	if (!_ok) 
+	{		
+		app_settings->setValue(key_value, QVariant(dmeter_port_id));
+	}
+
+	dmeter_tcp_settings.socket = new QTcpSocket(this);
+	dmeter_tcp_settings.ip_address = dmeter_ip_addr;
+	dmeter_tcp_settings.port = dmeter_port_id;
+}
+
+void MainWindow::initStepMotorPortSettings()
+{
+	int stmotor_port_id = 3008;
+	QString stmotor_ip_addr = "127.0.0.1";
+
+	// Read IP Address	
+	QString key_value = "StepMotor/IP_Address";
+	if (app_settings->contains(key_value)) stmotor_ip_addr = app_settings->value(key_value).toString();
+	else app_settings->setValue(key_value, QVariant(stmotor_ip_addr));
+
+	// Read TCP Port number
+	bool _ok;
+	key_value = "StepMotor/Port";
+	if (app_settings->contains(key_value)) stmotor_port_id = app_settings->value(key_value).toInt(&_ok);
+	else app_settings->setValue(key_value, stmotor_port_id);
+	if (!_ok) 
+	{		
+		app_settings->setValue(key_value, QVariant(stmotor_port_id));
+	}
+
+	stmotor_tcp_settings.socket = new QTcpSocket(this);
+	stmotor_tcp_settings.ip_address = stmotor_ip_addr;
+	stmotor_tcp_settings.port = stmotor_port_id;
+}
+
+/*void MainWindow::connectToNMRToolSocket(QString ip_addr, int port)
+{
+	com_commander->connectToHost(ip_addr, port);
+}
+
+void MainWindow::disconnectFromNMRToolSocket()
+{
+	com_commander->disconnectFromHost();
+}*/
+
+/*
 bool MainWindow::setupCOMPort(COM_PORT *com_port, QString _port_name)
 {
 	com_port->connect_state = false;
@@ -1697,7 +1897,9 @@ bool MainWindow::setupCOMPort(COM_PORT *com_port, QString _port_name)
 
 	return false;
 }
+*/
 
+/*
 bool MainWindow::findAvailableCOMPort(COM_PORT *com_port)
 {
 	for (int i = 1; i <= 15; i++)
@@ -1718,9 +1920,9 @@ bool MainWindow::findAvailableCOMPort(COM_PORT *com_port)
 
 	return false;
 }
+*/
 
-
-void MainWindow::setCOMPortSettings()
+/*void MainWindow::setCOMPortSettings()
 {
     COMPortDialog dlg(COM_Port->COM_port->portName(), COM_Port->COM_Settings, COM_Port->auto_search, this);
     if (dlg.exec())
@@ -1729,14 +1931,15 @@ void MainWindow::setCOMPortSettings()
 		COM_Port->COM_port->setPortName(dlg.getCOMPort());
 		COM_Port->auto_search = dlg.getAutoSearchState();
     }
-}
+}*/
 
 void MainWindow::setCommunicationSettings()
 {
 	CommunicationDialog dlg(comm_settings, this);
 	if (dlg.exec())
 	{
-		if (getCOMPort()->isOpen())
+		//if (getCOMPort()->isOpen())
+		if (nmrtool_tcp_settings.socket->isOpen())
 		{
 			Communication_Settings _comm_settings = dlg.getCommSettings();
 			comm_settings->antinoise_coding = _comm_settings.antinoise_coding;
@@ -1775,6 +1978,45 @@ void MainWindow::setCommunicationSettings()
 	}
 }
 
+void MainWindow::setToolSettings()
+{
+	ToolSettingsSettingsDialog dlg(nmrtool_tcp_settings, dmeter_tcp_settings, stmotor_tcp_settings);
+	if (dlg.exec())
+	{
+		nmrtool_tcp_settings = dlg.getNMRToolSettings();
+		dmeter_tcp_settings = dlg.getDMeterSettings();
+		stmotor_tcp_settings = dlg.getStMotorSettings();
+
+		if (nmrtool_tcp_settings.socket->isOpen()) 
+		{
+			nmrtool_tcp_settings.socket->disconnectFromHost();
+			nmrtool_tcp_settings.socket->connectToHost(nmrtool_tcp_settings.ip_address, nmrtool_tcp_settings.port);
+		}
+
+		if (dmeter_tcp_settings.socket->isOpen()) 
+		{
+			dmeter_tcp_settings.socket->disconnectFromHost();
+			dmeter_tcp_settings.socket->connectToHost(dmeter_tcp_settings.ip_address, dmeter_tcp_settings.port);
+		}
+
+		if (stmotor_tcp_settings.socket->isOpen()) 
+		{
+			stmotor_tcp_settings.socket->disconnectFromHost();
+			stmotor_tcp_settings.socket->connectToHost(stmotor_tcp_settings.ip_address, stmotor_tcp_settings.port);
+		}
+				
+		app_settings->setValue("NMRTool/IP_Address", nmrtool_tcp_settings.ip_address);
+		app_settings->setValue("NMRTool/Port", nmrtool_tcp_settings.port);
+
+		app_settings->setValue("DepthMeter/IP_Address", dmeter_tcp_settings.ip_address);
+		app_settings->setValue("DepthMeter/Port", dmeter_tcp_settings.port);
+
+		app_settings->setValue("StepMotor/IP_Address", stmotor_tcp_settings.ip_address);
+		app_settings->setValue("StepMotor/Port", stmotor_tcp_settings.port);
+	}
+}
+
+/*
 void MainWindow::setTCPConnectionSettings()
 {
 	TcpServerDialog dlg(tcp_data_manager->getTcpCommunicator()->getPort(), this);
@@ -1783,8 +2025,9 @@ void MainWindow::setTCPConnectionSettings()
 		tcp_data_manager->resetTcpCommunicator(dlg.getPort());
 	}
 }
+*/
 
-
+/*
 void MainWindow::setDepthMeterSettings()
 {
 	COMPortDialog dlg(COM_Port_depth->COM_port->portName(), COM_Port_depth->COM_Settings, false, this);
@@ -1807,7 +2050,9 @@ void MainWindow::setDepthMeterSettings()
 		//saveCOMSettings(COM_Port_depth, "DepthMeter");
 	}
 }
+*/
 
+/*
 void MainWindow::setStepMotorCOMSettings()
 {
 	COMPortDialog dlg(COM_Port_stepmotor->COM_port->portName(), COM_Port_stepmotor->COM_Settings, false, this);
@@ -1829,6 +2074,7 @@ void MainWindow::setStepMotorCOMSettings()
 		//saveCOMSettings(COM_Port_stepmotor, "StepMotor");
 	}
 }
+*/
 
 void MainWindow::setProcessingSettings()
 {
@@ -1914,6 +2160,85 @@ void MainWindow::initSaveDataAttrs()
 	//save_data_file = NULL;
 	//start_data_export = false;		// по умолчанию не экспортировать измеренные данные	
 	experiment_id = 0;
+}
+
+void MainWindow::initExperimentSettings()
+{	
+	if (app_settings->contains("ExperimentSettings/WellUID")) exper_attrs.well_UID = app_settings->value("ExperimentSettings/WellUID").toString();
+	else 
+	{
+		exper_attrs.well_UID = "";
+		app_settings->setValue("ExperimentSettings/WellUID", exper_attrs.well_UID);
+	}
+
+	if (app_settings->contains("ExperimentSettings/WellName")) exper_attrs.well_name = app_settings->value("ExperimentSettings/WellName").toString();
+	else 
+	{
+		exper_attrs.well_name = "";
+		app_settings->setValue("ExperimentSettings/WellName", exper_attrs.well_name);
+	}
+	
+	if (app_settings->contains("ExperimentSettings/Field")) exper_attrs.field_name = app_settings->value("ExperimentSettings/Field").toString();
+	else 
+	{
+		exper_attrs.field_name = "";
+		app_settings->setValue("ExperimentSettings/Field", exper_attrs.field_name);
+	}
+	
+	if (app_settings->contains("ExperimentSettings/Location")) exper_attrs.location = app_settings->value("ExperimentSettings/Location").toString();
+	else 
+	{
+		exper_attrs.location = "";
+		app_settings->setValue("ExperimentSettings/Location", exper_attrs.location);
+	}
+	
+	if (app_settings->contains("ExperimentSettings/Province")) exper_attrs.province = app_settings->value("ExperimentSettings/Province").toString();
+	else 
+	{
+		exper_attrs.province = "";
+		app_settings->setValue("ExperimentSettings/Province", exper_attrs.province);
+	}
+
+	if (app_settings->contains("ExperimentSettings/Country")) exper_attrs.country = app_settings->value("ExperimentSettings/Country").toString();
+	else 
+	{
+		exper_attrs.country = "Russia";
+		app_settings->setValue("ExperimentSettings/Country", exper_attrs.country);
+	}
+	
+	if (app_settings->contains("ExperimentSettings/ServiceCompany")) exper_attrs.service_company = app_settings->value("ExperimentSettings/ServiceCompany").toString();
+	else 
+	{
+		exper_attrs.service_company = "TNG group";
+		app_settings->setValue("ExperimentSettings/ServiceCompany", exper_attrs.service_company);
+	}
+
+	if (app_settings->contains("ExperimentSettings/Company")) exper_attrs.company = app_settings->value("ExperimentSettings/Company").toString();
+	else 
+	{
+		exper_attrs.company = "";
+		app_settings->setValue("ExperimentSettings/Company", exper_attrs.company);
+	}
+
+	if (app_settings->contains("ExperimentSettings/Operator")) exper_attrs.oper = app_settings->value("ExperimentSettings/Operator").toString();
+	else 
+	{
+		exper_attrs.oper = "";
+		app_settings->setValue("ExperimentSettings/Operator", exper_attrs.oper);
+	}
+	
+	if (app_settings->contains("Tool/Type")) exper_attrs.tool = app_settings->value("Tool/Type").toString();
+	else exper_attrs.tool = "";
+		
+	exper_attrs.date = QDate::currentDate();	
+
+	if (app_settings->contains("ExperimentSettings/DontShowAgain")) exper_attrs.dont_show_again = app_settings->value("ExperimentSettings/DontShowAgain").toBool();
+	else 
+	{
+		exper_attrs.dont_show_again = false;
+		app_settings->setValue("ExperimentSettings/DontShowAgain", exper_attrs.dont_show_again);
+	}
+	
 }
 
 void MainWindow::initDataTypes()
@@ -2076,6 +2401,7 @@ void MainWindow::showAboutDialog()
 	dlg.exec();
 }
 
+/*
 void MainWindow::setExportToOilData()
 {
 	ToOilExportDialog dlg(data_type_list_Oil);
@@ -2096,6 +2422,7 @@ void MainWindow::setExportToOilData()
 		if (saving) app_settings->sync();
 	}
 }
+*/
 
 void MainWindow::setExportToFileData()
 {
@@ -2137,7 +2464,43 @@ void MainWindow::setDataFileSettings()
 		app_settings->setValue("SaveDataSettings/Prefix", save_data_attrs.prefix);			
 		app_settings->setValue("SaveDataSettings/Postfix", save_data_attrs.postfix);
 		app_settings->setValue("SaveDataSettings/Extension", save_data_attrs.extension);
+
+		//app_settings->setValue("ExperimentSettings/WellUID", well_UID);
 	}
+}
+
+bool MainWindow::setExperimentSettings()
+{
+	ExperimentSettingsDialog dlg(app_settings, exper_attrs.dont_show_again);
+	if (dlg.exec())
+	{
+		exper_attrs.well_UID = dlg.getWellUID();
+		exper_attrs.well_name = dlg.getWellName();
+		exper_attrs.field_name = dlg.getFieldName();
+		exper_attrs.location = dlg.getLocation();
+		exper_attrs.province = dlg.getProvince();
+		exper_attrs.country = dlg.getCountry();
+		exper_attrs.service_company = dlg.getServiceCompany();
+		exper_attrs.company = dlg.getCompany();
+		exper_attrs.oper = dlg.getOperator();
+		exper_attrs.tool = dlg.getTool();
+		exper_attrs.date = dlg.getDate();
+		exper_attrs.dont_show_again = dlg.getDontShowAgain();
+
+		app_settings->setValue("ExperimentSettings/WellUID", exper_attrs.well_UID);
+		app_settings->setValue("ExperimentSettings/WellName", exper_attrs.well_name);
+		app_settings->setValue("ExperimentSettings/Field", exper_attrs.field_name);
+		app_settings->setValue("ExperimentSettings/Location", exper_attrs.location);
+		app_settings->setValue("ExperimentSettings/Province", exper_attrs.province);
+		app_settings->setValue("ExperimentSettings/Country", exper_attrs.country);
+		app_settings->setValue("ExperimentSettings/ServiceCompany", exper_attrs.service_company);
+		app_settings->setValue("ExperimentSettings/Company", exper_attrs.company);
+		app_settings->setValue("ExperimentSettings/Operator", exper_attrs.oper);
+		app_settings->setValue("ExperimentSettings/DontShowAgain", exper_attrs.dont_show_again);		
+	}
+	else return false;
+
+	return true;
 }
 
 void MainWindow::resetCommSettings()
@@ -2189,9 +2552,15 @@ void MainWindow::setSequenceStatus(SeqStatus status)
 	}
 }
 
+
 void MainWindow::setExpSchedulerFinished()
 {
 	setCmdResult(NMRTOOL_STOP, ConnectionState::State_OK);
+	QString finish_sound = "";
+	if (findSounds(finish_sound))
+	{
+		QSound::play(finish_sound);
+	}
 }
 
 void MainWindow::setExpSchedulerStarted()
@@ -2201,6 +2570,14 @@ void MainWindow::setExpSchedulerStarted()
 
 void MainWindow::connectToNMRTool(bool flag)
 {		
+	/*QVector<double> x,y;
+	x << 1 << 2 << 3;
+	y << 1 << 4 << 9;
+	QVector<uint8_t> bad_v;
+	bad_v << 1 << 1 << 1;
+	DataSet *ds = new DataSet(1, 64, &x, &y, &bad_v);
+	exportData(DataSets() << ds, QList<QVector<uint8_t> >() << QVector<uint8_t>(), QList<QVector<double> >() << QVector<double>());*/
+
 	if (!flag) 
 	{
 		a_connect->setChecked(true);		
@@ -2285,7 +2662,7 @@ void MainWindow::startNMRTool(bool flag)
 */
 
 void MainWindow::startNMRTool(bool flag)
-{	
+{		
 	if (!flag) 
 	{
 		a_start->setChecked(true);
@@ -2330,6 +2707,17 @@ void MainWindow::startNMRTool(bool flag)
 		a_apply_prg->setChecked(false);
 		a_start->setChecked(false);
 		return;
+	}
+
+	if (!exper_attrs.dont_show_again)
+	{
+		if (!setExperimentSettings()) 
+		{
+			int ret = QMessageBox::warning(this, "Warning!", tr("Experiment was stopped!"), QMessageBox::Ok);	
+			a_apply_prg->setChecked(false);
+			a_start->setChecked(false);
+			return;
+		}
 	}
 
 	data_set_windows.clear();
@@ -4611,10 +4999,23 @@ void MainWindow::exportData(DataSets &dss, QList<QVector<uint8_t> > &gap, QList<
 		memo = "[Description]\n";
 		memo += QString("Device = %1\n").arg(current_tool.type);
 		memo += QString("DeviceUId = %1\n").arg(current_tool.id);
-		memo += QString("Object = %1\n").arg("Скважина X");
+		/*memo += QString("Object = %1\n").arg("Скважина X");
 		memo += QString("Company = %1\n").arg("КФУ");
 		memo += QString("Experiment = %1\n").arg("");
 		memo += QString("Operator = %1\n").arg("");			
+		memo += QString("DateTime = %1\n").arg(ctime_str);*/
+		memo += QString("Object = %1, %2, %3, %4, %5, %6\n").arg(exper_attrs.well_name).arg(exper_attrs.well_UID).arg(exper_attrs.field_name).arg(exper_attrs.location).arg(exper_attrs.province).arg(exper_attrs.country);
+		/*memo += QString("UNIQUE WELL ID = %1\n").arg(exper_attrs.well_UID);
+		memo += QString("WELL = %1\n").arg(exper_attrs.well_name);
+		memo += QString("FIELD = %1\n").arg(exper_attrs.field_name);
+		memo += QString("LOCATION = %1\n").arg(exper_attrs.location);	
+		memo += QString("PROVINCE = %1\n").arg(exper_attrs.province);
+		memo += QString("COUNTRY = %1\n").arg(exper_attrs.country);*/
+		memo += QString("Company = %1, %2\n").arg(exper_attrs.company).arg(exper_attrs.service_company);
+		/*memo += QString("SERVICE COMPANY = %1\n").arg(exper_attrs.service_company);
+		memo += QString("COMPANY = %1\n").arg(exper_attrs.company);*/
+		memo += QString("Operator = %1\n").arg(exper_attrs.oper);
+		//memo += QString("DATE = %1\n").arg(exper_attrs.date.toString());
 		memo += QString("DateTime = %1\n").arg(ctime_str);
 		memo += QString("\n\n");
 
@@ -5326,6 +5727,7 @@ void MainWindow::depthDepthMeterConnected(bool flag)
 	ui->a_Depthmeter_Connection->setEnabled(!flag);
 }
 
+/*
 void MainWindow::sendDataToNetClients(const QString &sock_id, int index)
 {
 	if (dataset_storage->isEmpty()) return;
@@ -5356,6 +5758,7 @@ void MainWindow::sendDataToNetClients(const QString &sock_id, int index)
 
 	tcp_data_manager->dataToSend(sock_id, dss);
 }
+*/
 
 void MainWindow::sendToSDSP(QByteArray& arr)
 {
@@ -5977,9 +6380,10 @@ void MainWindow::saveAllSettings()
 	sdsp_widget->saveSettings();
 
 	// Depth meter, step motor COM port settings
-	saveCOMSettings(COM_Port_depth, "DepthMeter");
-	saveCOMSettings(COM_Port_stepmotor, "StepMotor");
-
+	//saveCOMSettings(COM_Port_depth, "DepthMeter");
+	//saveCOMSettings(COM_Port_stepmotor, "StepMotor");
+	saveSocketSettings(&dmeter_tcp_settings, "DepthMeter");
+	saveSocketSettings(&stmotor_tcp_settings, "StepMotor");
 
 }
 

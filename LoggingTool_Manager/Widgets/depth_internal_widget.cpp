@@ -3,7 +3,7 @@
 #include "depth_internal_widget.h"
 
 
-DepthInternalWidget::DepthInternalWidget(Clocker *_clocker, COM_PORT *com_port, QWidget *parent /* = 0 */) : ui(new Ui::InternalDepthMeter)
+DepthInternalWidget::DepthInternalWidget(Clocker *_clocker, TCP_Settings *_socket, QWidget *parent /* = 0 */) : ui(new Ui::InternalDepthMeter)
 {
 	ui->setupUi(this);
 	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
@@ -90,7 +90,8 @@ DepthInternalWidget::DepthInternalWidget(Clocker *_clocker, COM_PORT *com_port, 
 	device_is_searching = false;
 
 	clocker = _clocker;
-	COM_Port = com_port;
+	//COM_Port = com_port;
+	dmeter_socket = _socket;
 	depth_communicator = NULL;
 
 	timer.start(1000);	
@@ -157,12 +158,9 @@ void DepthInternalWidget::connectDepthMeter(bool flag)
 {
 	if (!flag)
 	{
-		if (COM_Port->COM_port != NULL) 
+		if (dmeter_socket != NULL) 
 		{
-			COM_Port->COM_port->close();			
-
-			//delete COM_Port->COM_port;
-			//COM_Port->COM_port = NULL;		
+			dmeter_socket->socket->disconnectFromHost();	
 		}	
 
 		if (depth_communicator != NULL)
@@ -186,17 +184,18 @@ void DepthInternalWidget::connectDepthMeter(bool flag)
 	}	
 	else
 	{		
-		if (COM_Port->COM_port != NULL)
+		if (dmeter_socket != NULL)
 		{
-			QString COMPort_Name = COM_Port->COM_port->portName();
+			/*QString COMPort_Name = COM_Port->COM_port->portName();
 			if (COMPort_Name.isEmpty()) 
 			{
 				int ret = QMessageBox::warning(this, tr("Warning!"), tr("No available COM-Port was found to connect to Depth Meter!"), QMessageBox::Ok, QMessageBox::Ok);
 				return;
-			}
+			}*/
 
-			COM_Port->COM_port->close();
-			COM_Port->COM_port->setPortName(COMPort_Name);
+			//COM_Port->COM_port->close();
+			//COM_Port->COM_port->setPortName(COMPort_Name);
+			dmeter_socket->socket->disconnectFromHost();
 
 			if (depth_communicator != NULL)
 			{
@@ -205,10 +204,12 @@ void DepthInternalWidget::connectDepthMeter(bool flag)
 				delete depth_communicator;
 				depth_communicator = NULL;
 			}			
-			bool res = COM_Port->COM_port->open(QextSerialPort::ReadWrite);
-			if (res) 	
+			//bool res = COM_Port->COM_port->open(QextSerialPort::ReadWrite);
+			//if (res)
+			dmeter_socket->socket->connectToHost(dmeter_socket->ip_address, dmeter_socket->port);
+			if (dmeter_socket->socket->open(QIODevice::ReadWrite))			
 			{				
-				depth_communicator = new DepthCommunicator(COM_Port->COM_port, clocker);
+				depth_communicator = new DepthCommunicator(dmeter_socket->socket, clocker);
 				setDepthCommunicatorConnections();
 				depth_communicator->start(QThread::NormalPriority);
 
@@ -225,12 +226,12 @@ void DepthInternalWidget::connectDepthMeter(bool flag)
 				is_connected = false;
 				emit connected(false);
 
-				int ret = QMessageBox::warning(this, tr("Warning!"), tr("Cannot open COM-Port (%1)!").arg(COMPort_Name), QMessageBox::Ok, QMessageBox::Ok);
+				int ret = QMessageBox::warning(this, tr("Warning!"), tr("Cannot open Depth Meter socket (IP: %1, Port: %2)!").arg(dmeter_socket->ip_address).arg(dmeter_socket->port), QMessageBox::Ok, QMessageBox::Ok);
 			}
 		}
 		else
 		{
-			int ret = QMessageBox::warning(this, tr("Warning!"), tr("No available COM-Port was found to connect to Depth Meter!"), QMessageBox::Ok, QMessageBox::Ok);
+			int ret = QMessageBox::warning(this, tr("Warning!"), tr("No available socket was found to connect to Depth Meter!"), QMessageBox::Ok, QMessageBox::Ok);
 		}
 		/*else
 		{			

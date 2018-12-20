@@ -14,7 +14,7 @@ ExportSettingsDialog::ExportSettingsDialog(QSettings *settings, bool to_save, QO
 	save_data = to_save;
 	save_all_data = false;
 	gbxSaveData->setChecked(save_data);
-
+		
 	if (app_settings->contains("SaveDataSettings/Path")) path = app_settings->value("SaveDataSettings/Path").toString();
 	else
 	{

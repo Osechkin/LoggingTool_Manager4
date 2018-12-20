@@ -78,6 +78,7 @@ DepthMonitoringWizard::DepthMonitoringWizard(Clocker *clocker, QWidget *parent) 
 	is_connected = false;
 	device_is_searching = false;
 
+	/*  Commented temporary
 	COM_Port = new COM_PORT;
 	initCOMSettings(COM_Port);	
 
@@ -130,7 +131,7 @@ DepthMonitoringWizard::DepthMonitoringWizard(Clocker *clocker, QWidget *parent) 
 			}
 		}	
 		int ret = QMessageBox::warning(this, tr("Warning!"), tr("No available COM-Port was found to connect to Depth Meter!"), QMessageBox::Ok, QMessageBox::Ok);
-	}		
+	}	*/	
 	
 	setConnection();	
 }
@@ -431,7 +432,8 @@ void DepthMonitoringWizard::changeCOMPort(QString str)
 		delete depth_communicator;	
 		depth_communicator = NULL;
 	}	
-		
+	
+	/*  Commented temporary !
 	QString port_name = str;
 	QextSerialPort *port = new QextSerialPort(port_name, COM_Port->COM_Settings);
 
@@ -451,6 +453,7 @@ void DepthMonitoringWizard::changeCOMPort(QString str)
 	{
 		int ret = QMessageBox::warning(this, tr("Warning!"), tr("Cannot open COM-Port!"), QMessageBox::Ok, QMessageBox::Ok);
 	}
+	*/
 }
 
 void DepthMonitoringWizard::changeLocation(Qt::DockWidgetArea area)
@@ -469,6 +472,7 @@ void DepthMonitoringWizard::changeLocation(Qt::DockWidgetArea area)
 
 void DepthMonitoringWizard::connectDepthMeter(bool flag)
 {
+	/* Commented temporary
 	if (!flag)
 	{
 		if (COM_Port->COM_port != NULL) 
@@ -566,5 +570,5 @@ void DepthMonitoringWizard::connectDepthMeter(bool flag)
 				int ret = QMessageBox::warning(this, tr("Warning!"), tr("Cannot open COM-Port (%1)!").arg(COMPort_Name), QMessageBox::Ok, QMessageBox::Ok);
 			}
 		}		
-	}	
+	}	*/
 }

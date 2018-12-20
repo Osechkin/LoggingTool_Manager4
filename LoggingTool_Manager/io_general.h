@@ -188,6 +188,9 @@ static uint32_t session_uid = 0;
 #define SDSP_REQUEST_C8		0x7F		// отправка запроса 0xC8 на данные в диэлектрический прибор (2^87 of Galois)
 #define SDSP_REQUEST_88		0xFE		// отправка запроса 0x88 на данные в диэлектрический прибор (2^88 of Galois)
 #define LOG_TOOL_SETTINGS	0x11		// отправка параметров настройки каротажного прибора (см. QVector<ToolChannel*> tool_channels) (2^100 of Galois)
+#define PRESS_UNIT_OPEN		0x34		// выдвинуть "лапу" прижимного прибора (2^106 of Galois)
+#define PRESS_UNIT_CLOSE	0xD0		// задвинуть "лапу" прижимного прибора (2^108 of Galois)
+#define PRESS_UNIT_STOP		0xD1		// остановить движение"лапы" прижимного прибора
 // Format of commands:
 // Command    Data Length (bytes)               Data                
 //(1 byte)   (2 bytes - uint16_t)      (up to ~56000 bytes) Note: Max. data length ~ 255 packets * (255 - recovery bytes - 4)

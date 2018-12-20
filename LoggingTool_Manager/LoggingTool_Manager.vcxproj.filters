@@ -119,12 +119,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_axis_dialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_comport_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_comport_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_curve_dialog.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -183,9 +177,6 @@
       <Filter>Source Files\Communication</Filter>
     </ClCompile>
     <ClCompile Include="Dialogs\axis_dialog.cpp">
-      <Filter>Source Files\Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs\comport_dialog.cpp">
       <Filter>Source Files\Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="Dialogs\curve_dialog.cpp">
@@ -254,15 +245,6 @@
     <ClCompile Include="Dialogs\export_settings_dialog.cpp">
       <Filter>Source Files\Dialogs</Filter>
     </ClCompile>
-    <ClCompile Include="Dialogs\tcp_server_dialog.cpp">
-      <Filter>Source Files\Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_tcp_server_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_tcp_server_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_statusbar_widgets.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -271,15 +253,6 @@
     </ClCompile>
     <ClCompile Include="Common\statusbar_widgets.cpp">
       <Filter>Source Files\Common</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_tcp_data_manager.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_tcp_data_manager.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Communication\tcp_data_manager.cpp">
-      <Filter>Source Files\Communication</Filter>
     </ClCompile>
     <ClCompile Include="Common\data_containers.cpp">
       <Filter>Source Files\Common</Filter>
@@ -341,15 +314,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_processing_settings_dialog.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_export_toOil_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_export_toOil_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs\export_toOil_dialog.cpp">
-      <Filter>Source Files\Dialogs</Filter>
-    </ClCompile>
     <ClCompile Include="Common\profiler.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -361,24 +325,6 @@
     </ClCompile>
     <ClCompile Include="Wizards\rfpulse_control_wizard.cpp">
       <Filter>Source Files\Wizards</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_depth_server_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_depth_server_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs\depth_server_dialog.cpp">
-      <Filter>Source Files\Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_cdiag_server_dialog.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_cdiag_server_dialog.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Dialogs\cdiag_server_dialog.cpp">
-      <Filter>Source Files\Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="Communication\message_class.cpp">
       <Filter>Source Files\Communication</Filter>
@@ -527,6 +473,42 @@
     <ClCompile Include="Communication\threads.cpp">
       <Filter>Source Files\Communication</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_experiment_settings_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_experiment_settings_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\experiment_settings_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_tool_settings_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_tool_settings_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\tool_settings_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_export_toFile_dialog.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_export_toFile_dialog.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Dialogs\export_toFile_dialog.cpp">
+      <Filter>Source Files\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_pressure_unit_wizard.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_pressure_unit_wizard.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\pressure_unit_wizard.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.h">
@@ -536,9 +518,6 @@
       <Filter>Form Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Dialogs\axis_dialog.ui">
-      <Filter>Form Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\comport_dialog.ui">
       <Filter>Form Files\Dialogs</Filter>
     </CustomBuild>
     <CustomBuild Include="Dialogs\curve_dialog.ui">
@@ -572,9 +551,6 @@
       <Filter>Header Files\Communication</Filter>
     </CustomBuild>
     <CustomBuild Include="Dialogs\axis_dialog.h">
-      <Filter>Header Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\comport_dialog.h">
       <Filter>Header Files\Dialogs</Filter>
     </CustomBuild>
     <CustomBuild Include="Dialogs\curve_dialog.h">
@@ -628,17 +604,8 @@
     <CustomBuild Include="Dialogs\export_settings_dialog.h">
       <Filter>Header Files\Dialogs</Filter>
     </CustomBuild>
-    <CustomBuild Include="Dialogs\tcp_server_dialog.ui">
-      <Filter>Form Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\tcp_server_dialog.h">
-      <Filter>Header Files\Dialogs</Filter>
-    </CustomBuild>
     <CustomBuild Include="Common\statusbar_widgets.h">
       <Filter>Header Files\Common</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Communication\tcp_data_manager.h">
-      <Filter>Header Files\Communication</Filter>
     </CustomBuild>
     <CustomBuild Include="Wizards\depth_monitoring_wizard.ui">
       <Filter>Form Files\Wizards</Filter>
@@ -682,12 +649,6 @@
     <CustomBuild Include="Dialogs\processing_settings_dialog_exp1.ui">
       <Filter>Form Files\Dialogs</Filter>
     </CustomBuild>
-    <CustomBuild Include="Dialogs\toOil_export_dialog.ui">
-      <Filter>Form Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\export_toOil_dialog.h">
-      <Filter>Header Files\Dialogs</Filter>
-    </CustomBuild>
     <CustomBuild Include="Wizards\rfpulse_control_wizard.ui">
       <Filter>Form Files\Wizards</Filter>
     </CustomBuild>
@@ -696,15 +657,6 @@
     </CustomBuild>
     <CustomBuild Include="Dialogs\depth_server_dialog.ui">
       <Filter>Form Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\depth_server_dialog.h">
-      <Filter>Header Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\cdiag_server_dialog.ui">
-      <Filter>Form Files\Dialogs</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Dialogs\cdiag_server_dialog.h">
-      <Filter>Header Files\Dialogs</Filter>
     </CustomBuild>
     <CustomBuild Include="Dialogs\depth_scale_dialog.ui">
       <Filter>Form Files\Dialogs</Filter>
@@ -796,15 +748,39 @@
     <CustomBuild Include="Communication\threads.h">
       <Filter>Header Files\Communication</Filter>
     </CustomBuild>
+    <CustomBuild Include="Dialogs\experiment_settings_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\experiment_settings_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Widgets\hold_down_widget.ui">
+      <Filter>Form Files\Widgets</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tool_settings_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\tool_settings_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\export_toFile_dialog.h">
+      <Filter>Header Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Dialogs\toFile_export_dialog.ui">
+      <Filter>Form Files\Dialogs</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\pressure_unit_wizard.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\pressure_unit_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_main_window.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_axis_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_comport_dialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_curve_dialog.h">
@@ -870,9 +846,6 @@
     <ClInclude Include="Common\experiment_settings.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_tcp_server_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\data_containers.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
@@ -897,9 +870,6 @@
     <ClInclude Include="GeneratedFiles\ui_processing_settings_dialog_exp1.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_toOil_export_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common\profiler.h">
       <Filter>Header Files\Common</Filter>
     </ClInclude>
@@ -907,9 +877,6 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_depth_server_dialog.h">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GeneratedFiles\ui_cdiag_server_dialog.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="Communication\message_class.h">
@@ -952,6 +919,21 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_freq_autoadjust_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_experiment_settings_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_hold_down_widget.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_tool_settings_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_toFile_export_dialog.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_pressure_unit_wizard.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

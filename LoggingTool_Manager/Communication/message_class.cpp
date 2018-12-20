@@ -308,6 +308,9 @@ void DeviceData::linkCmdData(DeviceData *dev_data)
 	case NMRTOOL_STOP:
 	case SDSP_REQUEST_88:
 	case SDSP_REQUEST_C8:
+	case PRESS_UNIT_OPEN:
+	case PRESS_UNIT_CLOSE:
+	case PRESS_UNIT_STOP:
 		{
 			dev_data->type = MTYPE_SHORT;
 			break;
