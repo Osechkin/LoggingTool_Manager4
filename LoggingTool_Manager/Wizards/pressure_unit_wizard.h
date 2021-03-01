@@ -10,6 +10,10 @@
 #include "ui_pressure_unit_wizard.h"
 
 
+#define DL		(0.004)
+#define KRED	(33.0*5.0)
+
+
 class PressureUnit : public QWidget, public Ui::PressureUnitWizard
 {
 	Q_OBJECT
@@ -21,6 +25,15 @@ public:
 	//void saveSettings();
 
 	QString getTitle() { return tr("Pressure Unit"); }
+
+	struct PressUnitData
+	{
+		unsigned int mtr_adc_value;
+		signed int mtr_counter;
+		unsigned int mtr_status;
+	};
+	PressUnitData *getData() { return &data; }
+	void setData(QVector<double> *_data);
 	
 	/*double_b getDepth() { return double_b(true, distance-zero_pos); }
 	QPair<double,double> getBounds() { return QPair<double,double>(lower_bound, upper_bound); }
@@ -49,6 +62,10 @@ private:
 	QTimer stepmotor_timer;
 
 	QSettings *app_settings;
+
+	PressUnitData data;
+	double x1;		// положение винта (гайки)
+	double x2;		// положение штока
 
 	/*
 	LeuzeCommunicator *leuze_communicator;

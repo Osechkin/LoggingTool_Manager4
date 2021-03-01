@@ -795,6 +795,7 @@ void NMRToolLinker::findNMRTool()
 	uint32_t id = COM_Message::generateMsgId();
 	if (default_comm_settings_on)
 	{
+		qDebug("Connect to NMR tool (default)");
 		DeviceData *device_data = new DeviceData(NMRTOOL_CONNECT_DEF, "Connect to Logging Tool with default Communication Settings", id);
 		msg_container.append(device_data);
 
@@ -802,6 +803,7 @@ void NMRToolLinker::findNMRTool()
 	}
 	else
 	{
+		qDebug("Connect to NMR tool");
 		DeviceData *device_data = new DeviceData(NMRTOOL_CONNECT, "Connect to Logging Tool", id);
 		msg_container.append(device_data);
 

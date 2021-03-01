@@ -12,7 +12,10 @@ typedef enum {
 	Distance,						// расстояние (для приборов с протяжной керна)
 	Time,							// время
 	Temperature,					// температура
-	Concentration					// концентрация
+	Concentration,					// концентрация
+	Voltage,						// напряжение
+	Current,						// ток
+	NoType							// нет типа
 } ScannedQuantity;	
 
 
@@ -46,6 +49,8 @@ struct ToolInfo
 #define DU_DATA_LEN				45				// длина данных телеметрии (в байтах), получаемых из устройства DU
 
 #define DIELECTR_MSG_LEN		20				// длина данных ответа диэлектрического прибора
+
+#define PRESS_UNIT_LEN			3				// длина данных прижимного устройства
 
 
 struct COM_PORT

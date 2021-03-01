@@ -93,6 +93,12 @@
         <file>images/experiment_settings.png</file>
         <file>images/play_all.png</file>
         <file>images/play_back_all.png</file>
+        <file>images/left-right_dec.png</file>
+        <file>images/left-right_inc.png</file>
+        <file>images/up-down_dec.png</file>
+        <file>images/up-down_inc.png</file>
+        <file>images/Add2.png</file>
+        <file>images/Delete.png</file>
     </qresource>
     <qresource prefix="/text_files">
         <file>sequence_datatypes.txt</file>

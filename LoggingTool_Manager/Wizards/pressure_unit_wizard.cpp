@@ -64,6 +64,10 @@ PressureUnit::PressureUnit(QWidget *parent)  : ui(new Ui::PressureUnitWizard)
 	ui->label2->setMargin(0);
 
 	setConnection();
+
+	data.mtr_adc_value = 0;
+	data.mtr_counter = 0;
+	data.mtr_status = 28;		// = 00011100 bits
 }
 
 PressureUnit::~PressureUnit()
@@ -100,4 +104,32 @@ void PressureUnit::stopPressureUnit()
 	DeviceData *device_data = new DeviceData(PRESS_UNIT_STOP, "Move Pressure Unit forward", id);
 
 	emit send_msg(device_data, this->objectName()); 
+}
+
+void PressureUnit::setData(QVector<double> *_data)
+{
+	unsigned int mtr_adc_value = (unsigned int)(_data->first());
+	signed int mtr_counter = (int)(_data->at(1));
+	unsigned int mtr_status = (unsigned int)(_data->at(2));
+
+	data.mtr_adc_value = mtr_adc_value;
+	data.mtr_counter = mtr_counter;
+	data.mtr_status = mtr_status;
+	x1 = int(data.mtr_counter*DL/KRED*1000)/4.0;	// *1000 чтобы перевести в мм, 4 - количество полюсов двигателя (дают 4 импульса за оборот)
+	double k = 1.0;									// калибровочный коэффициент - определить !
+	x2 = int(data.mtr_adc_value*k*1000);			// *1000 чтобы перевести в мм
+
+	int koncevik1 = (data.mtr_status & 0x8) >> 3;
+	int koncevik2 = (data.mtr_status & 0x10) >> 4;
+
+	if (koncevik1 > 0) ui->label1->setPixmap(QPixmap(QString::fromUtf8(":/images/Red Ball.png")));
+	else ui->label1->setPixmap(QPixmap(QString::fromUtf8(":/images/Gray Ball.png")));
+
+	if (koncevik2 > 0) ui->label2->setPixmap(QPixmap(QString::fromUtf8(":/images/Red Ball.png")));
+	else ui->label2->setPixmap(QPixmap(QString::fromUtf8(":/images/Gray Ball.png")));
+
+	QString x1_str = QString::number(x1);
+	QString x2_str = QString::number(x2);
+	ui->ledVint->setText(x1_str);
+	ui->ledShtok->setText(x2_str);
 }

@@ -253,7 +253,7 @@ private slots:
 	//void setDepthScale();
 	void searchAllData();	
 	void setDepthFrom(double from);
-	void setDepthTo(double to);
+	void setDepthRange(double range);
 	void scaleDataIn();
 	void scaleDataOut();
 	void scaleDepthIn();

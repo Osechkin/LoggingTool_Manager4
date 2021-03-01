@@ -192,9 +192,15 @@ void COMCommander::sendCOMMsg(COM_Message *msg)
 		msg->getRawData(&arr);
 		Sleep(20);
 
-		nmrtool_socket.socket->write((char*)&start_byte, 1);
-		nmrtool_socket.socket->write((char*)arr.data.get(), arr.len);
-		nmrtool_socket.socket->write((char*)&stop_byte, 1);
+		QVector<char> *out_data = new QVector<char>(arr.len+2);
+		out_data->data()[0] = (char)start_byte;
+		memcpy(out_data->data()+1, (char*)arr.data.get(), arr.len*sizeof(char));
+		out_data->data()[arr.len+1] = (char)stop_byte;
+
+		nmrtool_socket.socket->write(out_data->data(), arr.len+2);
+		//nmrtool_socket.socket->write((char*)&start_byte, 1);
+		//nmrtool_socket.socket->write((char*)arr.data.get(), arr.len);
+		//nmrtool_socket.socket->write((char*)&stop_byte, 1);
 
 		//msg->setStored(true);
 		//emit store_COM_message(msg);		
@@ -254,6 +260,16 @@ void COMCommander::treatCOMData(COM_Message *_msg)
 		}
 		else
 		{
+			//_msg_header->getByteArray().data.get()
+			int sz = HEADER_LEN;
+			uint8_t arr[HEADER_LEN];
+			int i;
+			for (i = 0; i < sz; i++)
+			{
+				uint8_t ch = head_q->at(i);
+				arr[i] = ch;
+			}
+
 			qDebug() << "bad msg header !";
 			msg_header_state = FAILED;
 			incom_msg_state = FAILED;
@@ -295,7 +311,8 @@ void COMCommander::searchMsgHeader(QUEUE<uint8_t> *_queue, QByteArray &str)
 		for (int i = 0; i < str.count(); i++) 
 		{
 			uint8_t ch = str[i];			
-			if (ch == START_BYTE && i == 0)
+			//if (ch == START_BYTE && i == 0)
+			if (ch == START_BYTE && msg_header_state == NOT_DEFINED)
 			{
 				msg_header_state = STARTED;		
 				_queue->clear();
@@ -1240,8 +1257,10 @@ void COMCommander::executeShortMsg(COM_Message *_msg)
 	case NMRTOOL_CONNECT:
 	case NMRTOOL_CONNECT_DEF:
 		{
+			qDebug("NMR Tool connected received");
 			if (!sent_device_data_queue.empty())
 			{
+				qDebug("NMR Tool connected");
 				sent_device_data_queue.get();
 			}
 			break;

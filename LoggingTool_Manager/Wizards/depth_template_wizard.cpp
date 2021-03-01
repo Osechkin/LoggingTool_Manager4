@@ -16,7 +16,7 @@ static uint32_t uid = 0;
 DepthTemplateWizard::DepthTemplateWizard(QSettings *_settings, TCP_Settings *_dmeter_socket, TCP_Settings *_stmotor_socket, QStringList depth_meter_list, Clocker *clocker, QWidget *parent) : QWidget(parent), ui(new Ui::DepthTemplateWizard)
 {
 	ui->setupUi(this);
-	this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
+	//this->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Expanding);
 			
 	QDesktopWidget *d = QApplication::desktop();
 	int cur_x = d->width();     // returns desktop width

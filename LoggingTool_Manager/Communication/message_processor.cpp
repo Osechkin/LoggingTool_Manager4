@@ -478,6 +478,8 @@ void MsgProcessor::receiveMsgFromCOMComander(COM_Message *_msg, uint32_t _uid)
 			case NMRTOOL_CONNECT:
 			case NMRTOOL_CONNECT_DEF:
 				{
+					qDebug("NMR Tool connected");
+
 					SmartArr arr = _msg->getMsgHeader()->getShortData();
 					unsigned char device_id = (arr.data[1]);
 					
@@ -660,6 +662,10 @@ MsgInfo::ParsingResult MsgProcessor::extractData(MsgInfo *msg_info)
 	SmartArr bad_map;
 	MsgInfo::extractAllAsBytes(&data, &bad_map, msg_info->getCOMMessage()); 	
 
+	//uint8_t temp_arr[160];
+	//memset(&temp_arr[0], 0x00, 160*sizeof(uint8_t));
+	//memcpy(&temp_arr[0], &data.data[0], data.len*sizeof(uint8_t));
+
 	int start_pos = 0;
 	MTYPE msg_type = msg_info->getCOMMessage()->getMsgType();
 	if (msg_type == MTYPE_MULTYPACK) 
@@ -681,6 +687,7 @@ MsgInfo::ParsingResult MsgProcessor::extractData(MsgInfo *msg_info)
 			bad_map.destroy();
 			return MsgInfo::Bad_Command;				// невозможно прочитать команду
 		}
+
 
 		uint8_t cmd = data.data[start_pos];
 		switch (cmd)
@@ -1945,6 +1952,209 @@ MsgInfo::ParsingResult MsgProcessor::extractData(MsgInfo *msg_info)
 
 				break;
 			}
+			case DT_T:
+				{
+					if (data.len < PACK_INFO_LEN + 6) return MsgInfo::Bad_DataLength;				// недостаточно данных. Должно быть как минимум: 3 байта (заголовок пакета) + 1байт (команда) + 1 байт (индекс канала данных) + 1 байт (индекс группы данных) + 2 байта (длина данных) + 1 байт (crc)
+					if (bad_map.data[start_pos+1] == DATA_STATE_FAIL)								// ошибка в коде канала данных () !
+						if (bad_map.data[start_pos+2] == BAD_DATA ) return MsgInfo::Bad_Command;	// ошибка в групповом индексе данных команды !
+					if (bad_map.data[start_pos+3] == DATA_STATE_FAIL || bad_map.data[start_pos+4] == BAD_DATA ) return MsgInfo::Bad_Command; // ошибка в байтах длины данных команды !
+
+					uint8_t channel_data_id = (uint8_t)(data.data[start_pos+1] + 1);				// номера каналов данных при передаче в каротажный прибор отсчитываются от нуля
+					uint16_t group_index = (uint16_t)(data.data[start_pos+2]);
+					uint16_t cmd_data_len = ((uint16_t)(data.data[start_pos+4]) << 8) | (uint16_t)(data.data[start_pos+3]);
+					if (cmd_data_len > data.len-PACK_INFO_LEN-6) cmd_data_len = data.len - PACK_INFO_LEN-6;	// если длина данных в пакете меньше, чем указано после байта команды			
+					start_pos += 5;																	// = 5, т.к. 5 = 1 байт комманды + 2 байта групповой индекс + 2 байта длины данных
+
+
+					//uint16_t byte_counter = cmd_data_len;	
+					//uint16_t dt_data_len = cmd_data_len/2;
+										
+					uint16_t byte_counter = cmd_data_len;
+					uint16_t dt_data_len = byte_counter/1;		// данные с температурных датчиков поступают в виде: "номер датчика (1 байт)" - "температура (1 байт)" - ... - (т.е. и т.д.)
+					QVector<double> *dt_data = new QVector<double>(dt_data_len);		// укладываются данные температуры так же: "номер датчика (1 байт)" - "температура (1 байт)" - ... - (т.е. и т.д.)		
+					QVector<uint8_t> *bad_dt_data = new QVector<uint8_t>(dt_data_len);
+
+					uint16_t pos = start_pos;
+					uint32_t cnt = 0;
+					uint8_t temp[16];																// 8x2 bytes of data
+					memcpy(&temp[0], &data.data[pos], 16*sizeof(uint8_t)); 
+					for (int i = 0; i < byte_counter; i += 2)
+					{
+						int chNum = (uint)temp[i];
+						dt_data->data()[cnt] = (double)chNum; 
+						bad_dt_data->data()[cnt] = (uint8_t)DATA_STATE_OK;
+						int TT = (uint)temp[i+1];
+						dt_data->data()[cnt+1] = (double)TT; 
+						bad_dt_data->data()[cnt+1] = (uint8_t)DATA_STATE_OK;
+
+						int pp = sizeof(uint16_t);
+						while (--pp >= 0) 
+						{
+							if (bad_map.data[pos+pp] == DATA_STATE_FAIL ) bad_dt_data->data()[cnt] = (uint8_t)BAD_DATA;
+						}
+						cnt += 2;
+						pos += sizeof(uint16_t);
+						start_pos += sizeof(uint16_t);
+					}
+
+					//start_pos += byte_counter;
+
+					Field_Comm *fieldT = new Field_Comm;				
+					fieldT->code = DT_T; 
+					fieldT->name = "SPVP Temperature data"; 
+					msg_info->setDeviceDataMemo("SPVP Monitoring data", NMRTOOL_DATA, MTYPE_MULTYPACK);
+					fieldT->value = dt_data;
+					fieldT->str_value = "";
+					fieldT->value_type = Field_Comm::FLOAT;
+					fieldT->bad_data = bad_dt_data;
+					fieldT->tag = group_index;
+					fieldT->channel = channel_data_id;
+					msg_info->getDeviceData()->fields->append(fieldT);
+
+					if (data.data[start_pos] == 0xFF) start_pos++;		// if next byte is a separator between data arrays
+					else 
+					{
+						return MsgInfo::Message_OK;
+					}
+
+					break;
+				}
+			case DT_U:
+				{
+					if (data.len < PACK_INFO_LEN + 6) return MsgInfo::Bad_DataLength;				// недостаточно данных. Должно быть как минимум: 3 байта (заголовок пакета) + 1байт (команда) + 1 байт (индекс канала данных) + 1 байт (индекс группы данных) + 2 байта (длина данных) + 1 байт (crc)
+					if (bad_map.data[start_pos+1] == DATA_STATE_FAIL)								// ошибка в коде канала данных () !
+						if (bad_map.data[start_pos+2] == BAD_DATA ) return MsgInfo::Bad_Command;	// ошибка в групповом индексе данных команды !
+					if (bad_map.data[start_pos+3] == DATA_STATE_FAIL || bad_map.data[start_pos+4] == BAD_DATA ) return MsgInfo::Bad_Command; // ошибка в байтах длины данных команды !
+
+					uint8_t channel_data_id = (uint8_t)(data.data[start_pos+1] + 1);				// номера каналов данных при передаче в каротажный прибор отсчитываются от нуля
+					uint16_t group_index = (uint16_t)(data.data[start_pos+2]);
+					uint16_t cmd_data_len = ((uint16_t)(data.data[start_pos+4]) << 8) | (uint16_t)(data.data[start_pos+3]);
+					if (cmd_data_len > data.len-PACK_INFO_LEN-6) cmd_data_len = data.len - PACK_INFO_LEN-6;	// если длина данных в пакете меньше, чем указано после байта команды			
+					start_pos += 5;																	// = 5, т.к. 5 = 1 байт комманды + 2 байта групповой индекс + 2 байта длины данных
+
+
+					uint16_t byte_counter = cmd_data_len;	
+					uint16_t du_data_len = cmd_data_len/2;
+					//uint16_t byte_counter = 8;	
+					//uint16_t du_data_len = byte_counter/1;
+					QVector<double> *du_data = new QVector<double>(du_data_len);				
+					QVector<uint8_t> *bad_du_data = new QVector<uint8_t>(du_data_len);
+
+					uint16_t pos = start_pos;
+					uint32_t cnt = 0;
+					uint8_t temp[8];																// 4x2 bytes of data
+					memcpy(&temp[0], &data.data[pos], 8*sizeof(uint8_t)); 					
+					for (int i = 0; i < byte_counter; i += 2)
+					{
+						int UU = ((uint)temp[i] << 8) | (uint)temp[i+1];
+						du_data->data()[cnt] = 3.3*UU/1024.0; 
+						bad_du_data->data()[cnt] = (uint8_t)DATA_STATE_OK;
+
+						int pp = sizeof(uint16_t);
+						while (--pp >= 0) 
+						{
+							if (bad_map.data[pos+pp] == DATA_STATE_FAIL ) bad_du_data->data()[cnt] = (uint8_t)BAD_DATA;
+						}
+						cnt++;
+						pos += sizeof(uint16_t);
+						start_pos += sizeof(uint16_t);
+					}
+
+					//start_pos += byte_counter;
+
+					Field_Comm *fieldU = new Field_Comm;				
+					fieldU->code = DT_U; 
+					fieldU->name = "SPVP Voltage data"; 
+					msg_info->setDeviceDataMemo("SPVP Monitoring data", NMRTOOL_DATA, MTYPE_MULTYPACK);
+					fieldU->value = du_data;
+					fieldU->str_value = "";
+					fieldU->value_type = Field_Comm::FLOAT;
+					fieldU->bad_data = bad_du_data;
+					fieldU->tag = group_index;
+					fieldU->channel = channel_data_id;
+					msg_info->getDeviceData()->fields->append(fieldU);							
+
+					if (data.data[start_pos] == 0xFF) start_pos++;		// if next byte is a separator between data arrays
+					else 
+					{
+						return MsgInfo::Message_OK;
+					}
+
+					break;
+				}
+		case DT_PRESS_UNIT:
+			{
+				if (data.len < PACK_INFO_LEN + 6) return MsgInfo::Bad_DataLength;						// недостаточно данных. Должно быть как минимум: 3 байта (заголовок пакета) + 1байт (команда) + 1 байт (индекс канала данных) + 1 байт (индекс группы данных) + 2 байта (длина данных) + 1 байт (crc)
+				if (bad_map.data[start_pos+1] == DATA_STATE_FAIL)										// ошибка в коде канала данных () !
+				if (bad_map.data[start_pos+2] == BAD_DATA ) return MsgInfo::Bad_Command;				// ошибка в групповом индексе данных команды !
+				if (bad_map.data[start_pos+3] == DATA_STATE_FAIL || bad_map.data[start_pos+4] == BAD_DATA ) return MsgInfo::Bad_Command; // ошибка в байтах длины данных команды !
+
+				uint8_t channel_data_id = (uint8_t)(data.data[start_pos+1] + 1);						// номера каналов данных при передаче в каротажный прибор отсчитываются от нуля
+				uint16_t group_index = (uint16_t)(data.data[start_pos+2]);
+				uint16_t cmd_data_len = ((uint16_t)(data.data[start_pos+4]) << 8) | (uint16_t)(data.data[start_pos+3]);
+				if (cmd_data_len > data.len-PACK_INFO_LEN-6) cmd_data_len = data.len - PACK_INFO_LEN-6;	// если длина данных в пакете меньше, чем указано после байта команды			
+				start_pos += 5;																			// = 5, т.к. 5 = 1 байт комманды + 2 байта групповой индекс + 2 байта длины данных
+
+
+				uint16_t byte_counter = cmd_data_len;
+				uint16_t press_unit_data_len = 3;
+				QVector<double> *press_unit_data = new QVector<double>(press_unit_data_len);
+				QVector<uint8_t> *bad_press_unit_data = new QVector<uint8_t>(press_unit_data_len);
+
+				uint16_t pos = start_pos;
+				uint32_t cnt = 0;
+
+				QVector<uint32_t> temp(PRESS_UNIT_LEN);				
+				memcpy(&temp[0], &data.data[pos], PRESS_UNIT_LEN*sizeof(uint32_t)); 
+								
+				{
+					pos += 2;
+					int cnt = 0;
+					bool is_data_bad = false;
+					for (int i = 0; i < PRESS_UNIT_LEN; i++)
+					{
+						uint16_t val = temp[i];	//((temp[i+1] << 8) | temp[i]);
+						press_unit_data->data()[cnt] = (double)val;
+
+						bad_press_unit_data->data()[cnt] = (uint8_t)DATA_STATE_OK;
+						int pp = sizeof(uint16_t);						
+						while (--pp >= 0) 
+						{
+							if (bad_map.data[pos+pp] == DATA_STATE_FAIL ) 
+							{
+								bad_press_unit_data->data()[cnt] = (uint8_t)BAD_DATA;
+								is_data_bad = true;
+							}
+						}
+						cnt++;
+						pos++;
+					}
+					//if (!is_data_bad) emit send_to_cdiag(temp); 
+				}
+				
+				start_pos += PRESS_UNIT_LEN;
+
+				Field_Comm *field = new Field_Comm;
+				field->name = "Pressure Unit data";
+				field->code = cmd;
+				field->value = press_unit_data;
+				field->str_value = "";
+				field->value_type = Field_Comm::FLOAT;
+				field->bad_data = bad_press_unit_data;
+				field->tag = group_index;
+				field->channel = channel_data_id;
+
+				msg_info->setDeviceDataMemo("Pressure Unit data", NMRTOOL_DATA, MTYPE_MULTYPACK);
+				msg_info->getDeviceData()->fields->append(field);
+
+				if (data.data[start_pos] == 0xFF) start_pos++;		// if next byte is a separator between data arrays
+				else 
+				{
+					return MsgInfo::Message_OK;
+				}
+
+				break;
+			}
 		case NMRTOOL_CONNECT:
 			{
 				msg_info->setDeviceDataMemo("Connect to Logging Tool", NMRTOOL_CONNECT, MTYPE_SHORT);
@@ -1977,6 +2187,8 @@ MsgInfo::ParsingResult MsgProcessor::extractData(MsgInfo *msg_info)
 			}
 		default: 
 			{
+				uint8_t tt[4096];
+				memcpy(&tt[0], data.data.get(), data.len*sizeof(uint8_t));
 				data.destroy();
 				bad_map.destroy();
 				return MsgInfo::Bad_Command;

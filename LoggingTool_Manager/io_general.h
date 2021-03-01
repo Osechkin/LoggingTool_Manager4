@@ -122,6 +122,9 @@ static uint32_t session_uid = 0;
 #define DT_T1T2_NMR			0x44		// данные двумерной Т1-Т2 релаксометрии	(2^102 of Galois)
 #define DT_DsT2_NMR			0x88		// данные двумерной ЯМР релаксометрии-диффузометрии (Т1-Ds ЯМР)	(2^103 of Galois)
 #define DT_FREQ_TUNE		0x0D		// данные автонастройки частоты для ЯМР КЕРН (2^104 of Galois)
+#define DT_PRESS_UNIT		0xBD		// данные прижимного устройства (2^109 of Galois)
+#define DT_T				0x67		// данные датчиков температуры прибора SPVP (2^110 of Galois)
+#define DT_U				0xCE		// данные датчиков напряжения прибора SPVP (2^111 of Galois)
 
 
 // ------------------ UART Commands for c6x program ----------------------

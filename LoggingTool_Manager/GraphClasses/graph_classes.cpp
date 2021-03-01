@@ -2264,7 +2264,7 @@ void PlottedDataManager::changeTimeX0(double val)
 
 void PlottedDataManager::changeFreqX0(double val)
 {	
-	double kHz_to_Pnt = (double)(NMR_SAMPLE_FREQ()/2)/512/1000;
+	double kHz_to_Pnt = (double)(NMR_SAMPLE_FREQ()/2)/1024/1000;	// 512
 
 	int index = -1;
 	for (int i = win_funcs.count()/2; i < win_funcs.count(); i++)

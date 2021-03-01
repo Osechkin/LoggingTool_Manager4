@@ -190,7 +190,7 @@ void PaintFrame_forLogging::drawDataSymbol(QPainter *painter, QwtSymbol::Style s
 LoggingWidget::LoggingWidget(QVector<ToolChannel*> channels, QWidget *parent) : QWidget(parent)
 {
 	ui.setupUi(this);
-
+	
 	ui.tbtSearchData->setIcon(QIcon(":/images/find_signal.png"));
 	ui.tbtClearAll->setIcon(QIcon(":/images/Eraser.png"));
 	ui.tbtScaleIn_1->setIcon(QIcon(":/images/zoom_in.png"));
@@ -499,7 +499,7 @@ LoggingWidget::LoggingWidget(QVector<ToolChannel*> channels, QWidget *parent) : 
 	double up_depth = ui.qwtPlot1->axisScaleDiv(QwtPlot::yLeft).upperBound();
 	double down_depth = ui.qwtPlot1->axisScaleDiv(QwtPlot::yLeft).lowerBound();
 	ui.cntDepthFrom->setValue(int(up_depth));
-	ui.cntDepthTo->setValue(int(down_depth));
+	ui.cntDepthRange->setValue(int(down_depth-up_depth));
 		
 	calibration_state = false;
 	core_diameter = 0.10;	// [m]
@@ -539,7 +539,7 @@ void LoggingWidget::setConnections()
 	connect(ui.tbtClearAll, SIGNAL(clicked()), this, SLOT(clearAllData()));
 
 	connect(ui.cntDepthFrom, SIGNAL(valueChanged(double)), this, SLOT(setDepthFrom(double)));
-	connect(ui.cntDepthTo, SIGNAL(valueChanged(double)), this, SLOT(setDepthTo(double)));
+	connect(ui.cntDepthRange, SIGNAL(valueChanged(double)), this, SLOT(setDepthRange(double)));
 
 	connect(ui.tbtScaleIn_1, SIGNAL(clicked()), this, SLOT(scaleDataIn()));
 	connect(ui.tbtScaleIn_2, SIGNAL(clicked()), this, SLOT(scaleDataIn()));
@@ -902,7 +902,7 @@ void LoggingWidget::searchAllData()
 		qwtPlot->replot();
 
 		ui.cntDepthFrom->setValue(int(upper_values-10));
-		ui.cntDepthTo->setValue(int(downer_values+10));
+		ui.cntDepthRange->setValue(int((downer_values+10)-(upper_values-10)));
 	}
 }
 
@@ -956,7 +956,7 @@ void LoggingWidget::setDepthFrom(double from)
 	}
 }
 
-void LoggingWidget::setDepthTo(double to)
+void LoggingWidget::setDepthRange(double range)
 {
 	for (int i = 0; i < logging_plot_list.count(); i++)
 	{
@@ -965,8 +965,8 @@ void LoggingWidget::setDepthTo(double to)
 
 		double up_depth = qwtPlot->axisScaleDiv(QwtPlot::yLeft).upperBound();		
 
-		qwtPlot->setAxisScale(QwtPlot::yLeft, to, up_depth);
-		qwtPlot->setAxisScale(QwtPlot::yRight, to, up_depth);
+		qwtPlot->setAxisScale(QwtPlot::yLeft, up_depth+range, up_depth);
+		qwtPlot->setAxisScale(QwtPlot::yRight, up_depth+range, up_depth);
 
 		qwtPlot->replot();
 	}
@@ -1060,7 +1060,7 @@ void LoggingWidget::scaleDepthIn()
 	if ((new_down_depth < -100) || (new_up_depth < -100)) return; 
 
 	ui.cntDepthFrom->setValue(int(new_up_depth));
-	ui.cntDepthTo->setValue(int(new_down_depth));
+	ui.cntDepthRange->setValue(int(new_down_depth-new_up_depth));
 
 	for (int i = 0; i < logging_plot_list.count(); i++)
 	{
@@ -1092,7 +1092,7 @@ void LoggingWidget::scaleDepthOut()
 	if ((new_down_depth < -100) || (new_up_depth < -100)) return; 
 
 	ui.cntDepthFrom->setValue(int(new_up_depth));
-	ui.cntDepthTo->setValue(int(new_down_depth));
+	ui.cntDepthRange->setValue(int(new_down_depth-new_up_depth));
 
 	for (int i = 0; i < logging_plot_list.count(); i++)
 	{
@@ -1443,10 +1443,11 @@ void LoggingWidget::rescaleAllPlots(void *qwtplot_obj)
 		scale_div.setTicks(QwtScaleDiv::MinorTick, ticks_minor);
 		qwt_plot->setAxisScaleDiv(QwtPlot::xTop, scale_div);*/
 		
-		qwtPlot->replot();		
+		//qwtPlot->replot();		
+		qwt_plot->replot();
 
 		ui.cntDepthFrom->setValue(int(cur_max_depth));
-		ui.cntDepthTo->setValue(int(cur_min_depth));
+		ui.cntDepthRange->setValue(int(cur_min_depth-cur_max_depth));
 	}
 }
 
@@ -1464,10 +1465,11 @@ void LoggingWidget::rescaleAllDepths(void *qwtplot_obj)
 		qwt_plot->setAxisScale(QwtPlot::yLeft, cur_min_depth, cur_max_depth);
 		qwt_plot->setAxisScale(QwtPlot::yRight, cur_min_depth, cur_max_depth);
 		
-		qwtPlot->replot();		
+		//qwtPlot->replot();		
+		qwt_plot->replot();
 
 		ui.cntDepthFrom->setValue(int(cur_max_depth));
-		ui.cntDepthTo->setValue(int(cur_min_depth));
+		ui.cntDepthRange->setValue(int(cur_min_depth-cur_max_depth));
 	}
 }
 
@@ -1487,7 +1489,7 @@ void LoggingWidget::setRezoomAll(const QRectF &rect)
 		qwt_plot->replot();
 
 		ui.cntDepthFrom->setValue(int(min_depth));
-		ui.cntDepthTo->setValue(int(max_depth));
+		ui.cntDepthRange->setValue(int(max_depth-min_depth));
 	}
 }
 

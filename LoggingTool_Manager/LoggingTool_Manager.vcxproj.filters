@@ -296,15 +296,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_rxtx_control_wizard.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Wizards\monitoring_wizard.cpp">
-      <Filter>Source Files\Wizards</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_monitoring_wizard.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_monitoring_wizard.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Dialogs\processing_settings_dialog.cpp">
       <Filter>Source Files\Dialogs</Filter>
     </ClCompile>
@@ -509,6 +500,24 @@
     <ClCompile Include="Wizards\pressure_unit_wizard.cpp">
       <Filter>Source Files\Wizards</Filter>
     </ClCompile>
+    <ClCompile Include="Wizards\monitoring_wizard_exp1.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_monitoring_wizard_exp1.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_monitoring_wizard_exp1.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_monitoring_frame.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_monitoring_frame.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Wizards\monitoring_frame.cpp">
+      <Filter>Source Files\Wizards</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="main_window.h">
@@ -640,9 +649,6 @@
     <CustomBuild Include="Wizards\monitoring_wizard.ui">
       <Filter>Form Files\Wizards</Filter>
     </CustomBuild>
-    <CustomBuild Include="Wizards\monitoring_wizard.h">
-      <Filter>Header Files\Wizards</Filter>
-    </CustomBuild>
     <CustomBuild Include="Dialogs\processing_settings_dialog.h">
       <Filter>Header Files\Dialogs</Filter>
     </CustomBuild>
@@ -773,6 +779,18 @@
       <Filter>Form Files\Wizards</Filter>
     </CustomBuild>
     <CustomBuild Include="Wizards\pressure_unit_wizard.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_wizard_exp1.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_wizard_exp1.h">
+      <Filter>Header Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_frame.ui">
+      <Filter>Form Files\Wizards</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Wizards\monitoring_frame.h">
       <Filter>Header Files\Wizards</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -934,6 +952,12 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_pressure_unit_wizard.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_monitoring_wizard_exp1.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_monitoring_frame.h">
       <Filter>Generated Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -88,7 +88,7 @@ SchedulerWizard::SchedulerWizard(SequenceWizard *seq_wiz, DepthTemplateWizard *d
 	connect(ui->tbtRemove, SIGNAL(clicked()), this, SLOT(removeItem()));
 	connect(a_remove_all, SIGNAL(triggered()), this, SLOT(removeAllItems()));
 
-	connect(&timer, SIGNAL(timeout()), this, SLOT(dataTimedOut()));
+	//connect(&timer, SIGNAL(timeout()), this, SLOT(dataTimedOut()));		// удалено 10.01.2021, чтобы убрать автоматический перезапуск измерений, как это имеет место в приборе яћ–- ерн
 
 	/*main_win = NULL;
 	foreach (QWidget *win, QApplication::topLevelWidgets())

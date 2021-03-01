@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1423</width>
+    <width>1091</width>
     <height>576</height>
    </rect>
   </property>
@@ -91,7 +91,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QwtCounter" name="cntDepthFrom">
+           <widget class="QwtCounter" name="cntDepthFrom" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -118,25 +118,25 @@
             <property name="layoutDirection">
              <enum>Qt::LeftToRight</enum>
             </property>
-            <property name="minimum">
+            <property name="minimum" stdset="0">
              <double>-100.000000000000000</double>
             </property>
-            <property name="maximum">
+            <property name="maximum" stdset="0">
              <double>100000.000000000000000</double>
             </property>
-            <property name="singleStep">
+            <property name="singleStep" stdset="0">
              <double>0.100000000000000</double>
             </property>
-            <property name="numButtons">
+            <property name="numButtons" stdset="0">
              <number>2</number>
             </property>
-            <property name="stepButton2">
+            <property name="stepButton2" stdset="0">
              <number>100</number>
             </property>
-            <property name="stepButton3">
+            <property name="stepButton3" stdset="0">
              <number>1000</number>
             </property>
-            <property name="wrapping">
+            <property name="wrapping" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -146,19 +146,19 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLabel" name="lblDepthTo">
+           <widget class="QLabel" name="lblDepthRange">
             <property name="font">
              <font>
               <pointsize>9</pointsize>
              </font>
             </property>
             <property name="text">
-             <string>To:</string>
+             <string>Range:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QwtCounter" name="cntDepthTo">
+           <widget class="QwtCounter" name="cntDepthRange" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -185,22 +185,22 @@
             <property name="layoutDirection">
              <enum>Qt::LeftToRight</enum>
             </property>
-            <property name="minimum">
-             <double>-100.000000000000000</double>
-            </property>
-            <property name="maximum">
-             <double>100000.000000000000000</double>
-            </property>
-            <property name="singleStep">
+            <property name="minimum" stdset="0">
              <double>0.100000000000000</double>
             </property>
-            <property name="numButtons">
+            <property name="maximum" stdset="0">
+             <double>100000.000000000000000</double>
+            </property>
+            <property name="singleStep" stdset="0">
+             <double>0.100000000000000</double>
+            </property>
+            <property name="numButtons" stdset="0">
              <number>2</number>
             </property>
-            <property name="stepButton2">
+            <property name="stepButton2" stdset="0">
              <number>100</number>
             </property>
-            <property name="stepButton3">
+            <property name="stepButton3" stdset="0">
              <number>1000</number>
             </property>
            </widget>
@@ -755,7 +755,7 @@
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <layout class="QGridLayout" name="gridLayout_7">
           <property name="spacing">
            <number>2</number>

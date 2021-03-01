@@ -167,6 +167,41 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	addDockWidget(Qt::BottomDockWidgetArea, dock_msgLog);
 	dock_msgLog->setVisible(true);
 
+	dock_nmrtoolStatus = new QDockWidget(tr("Logging Tool Status"), this);
+	QFont fontNMRToolStatus = dock_nmrtoolStatus->font();
+	fontNMRToolStatus.setPointSize(9);
+	fontNMRToolStatus.setBold(true);
+	dock_nmrtoolStatus->setFont(fontNMRToolStatus);
+	dock_nmrtoolStatus->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+	nmrtoolStatus = new NMRToolStatusWizard(dock_nmrtoolStatus);
+	QFont toolstatus_font = nmrtoolStatus->getUI()->lblPower->font();
+	toolstatus_font.setBold(false);
+	nmrtoolStatus->getUI()->lblPower->setFont(toolstatus_font);
+	nmrtoolStatus->getUI()->lblTemperature->setFont(toolstatus_font);
+	nmrtoolStatus->getUI()->lblDataTransfer->setFont(toolstatus_font);
+	dock_nmrtoolStatus->setWidget(nmrtoolStatus);
+	addDockWidget(Qt::RightDockWidgetArea, dock_nmrtoolStatus);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_nmrtoolStatus);	
+	dock_nmrtoolStatus->setVisible(true);
+
+	QStringList depth_meter_list; 
+	depth_meter_list << current_tool.depth_monitors;
+
+	dock_depthTemplate = new QDockWidget(tr("Depth Monitoring"), this);
+	dock_depthTemplate->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
+	QFont fontDepthTemplate = dock_depthTemplate->font();
+	fontDepthTemplate.setPointSize(9);
+	fontDepthTemplate.setBold(true);
+	dock_depthTemplate->setFont(fontDepthTemplate);
+	depthTemplate = new DepthTemplateWizard(app_settings, &dmeter_tcp_settings, &stmotor_tcp_settings, depth_meter_list, clocker, dock_depthTemplate);
+	fontDepthTemplate.setBold(false);
+	depthTemplate->getUI()->cboxDepthMeter->setFont(fontDepthTemplate);
+	depthTemplate->getUI()->lblDepthMeter->setFont(fontDepthTemplate);
+	dock_depthTemplate->setWidget(depthTemplate);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_depthTemplate);
+	addDockWidget(Qt::RightDockWidgetArea, dock_depthTemplate);
+	dock_depthTemplate->setVisible(true);
+
 	dock_PressureUnit = new QDockWidget(tr("Pressure Unit"), this);
 	dock_PressureUnit->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
 	QFont fontPressureUnit = dock_PressureUnit->font();
@@ -175,7 +210,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_PressureUnit->setFont(fontPressureUnit);
 	pressUnit = new PressureUnit(dock_PressureUnit);
 	dock_PressureUnit->setWidget(pressUnit);
-	addDockWidget(Qt::BottomDockWidgetArea, dock_PressureUnit);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_PressureUnit);
+	addDockWidget(Qt::RightDockWidgetArea, dock_PressureUnit);
 	dock_PressureUnit->setVisible(true);
 	
 	dock_FreqAutoadjust = new QDockWidget(tr("Frequency Autotune"), this);
@@ -186,7 +222,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_FreqAutoadjust->setFont(fontFreqAutoadjust);
 	freqAutoadjust = new FreqAutoadjustWizard(dock_FreqAutoadjust);
 	dock_FreqAutoadjust->setWidget(freqAutoadjust);
-	addDockWidget(Qt::BottomDockWidgetArea, dock_FreqAutoadjust);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_FreqAutoadjust);
+	addDockWidget(Qt::RightDockWidgetArea, dock_FreqAutoadjust);
 	dock_FreqAutoadjust->setVisible(true);
 
 	dock_RxTxControl = new QDockWidget(tr("Rx/Tx Control"), this);
@@ -197,7 +234,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_RxTxControl->setFont(fontRxTxControl);
 	rxtxControl = new RxTxControlWizard(dock_RxTxControl);
 	dock_RxTxControl->setWidget(rxtxControl);
-	addDockWidget(Qt::BottomDockWidgetArea, dock_RxTxControl);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_RxTxControl);
+	addDockWidget(Qt::RightDockWidgetArea, dock_RxTxControl);
 	dock_RxTxControl->setVisible(true);
 
 	dock_RFPulseControl = new QDockWidget(tr("RF-Pulse Control"), this);
@@ -208,7 +246,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_RFPulseControl->setFont(fontRFPulseControl);
 	rfpulseControl = new RFPulseControlWizard(dock_RFPulseControl);
 	dock_RFPulseControl->setWidget(rfpulseControl);
-	addDockWidget(Qt::BottomDockWidgetArea, dock_RFPulseControl);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_RFPulseControl);
+	addDockWidget(Qt::RightDockWidgetArea, dock_RFPulseControl);
 	dock_RFPulseControl->setVisible(true);
 		
 	/*
@@ -238,9 +277,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	}
 	*/
 
+	/*
 	QStringList depth_meter_list; 
 	depth_meter_list << current_tool.depth_monitors;
-	
+		
 	dock_depthTemplate = new QDockWidget(tr("Depth Monitoring"), this);
 	dock_depthTemplate->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea | Qt::BottomDockWidgetArea);
 	QFont fontDepthTemplate = dock_depthTemplate->font();
@@ -254,6 +294,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_depthTemplate->setWidget(depthTemplate);
 	addDockWidget(Qt::BottomDockWidgetArea, dock_depthTemplate);
 	dock_depthTemplate->setVisible(true);
+	*/
 			
 	dock_sequenceProc = new QDockWidget(tr("Sequence Wizard"), this);	
 	QFont fontProc = dock_sequenceProc->font();
@@ -319,6 +360,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	dock_expScheduler->setWidget(expScheduler);    
 	addDockWidget(Qt::LeftDockWidgetArea, dock_expScheduler);	
 	
+	/*
 	dock_nmrtoolStatus = new QDockWidget(tr("Logging Tool Status"), this);
 	QFont fontNMRToolStatus = dock_nmrtoolStatus->font();
 	fontNMRToolStatus.setPointSize(9);
@@ -332,8 +374,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 	nmrtoolStatus->getUI()->lblTemperature->setFont(toolstatus_font);
 	nmrtoolStatus->getUI()->lblDataTransfer->setFont(toolstatus_font);
 	dock_nmrtoolStatus->setWidget(nmrtoolStatus);
-	addDockWidget(Qt::BottomDockWidgetArea, dock_nmrtoolStatus);	
+	addDockWidget(Qt::RightDockWidgetArea, dock_nmrtoolStatus);
+	//addDockWidget(Qt::BottomDockWidgetArea, dock_nmrtoolStatus);	
 	dock_nmrtoolStatus->setVisible(true);
+	*/
 			
 	this->setTabPosition(Qt::LeftDockWidgetArea, QTabWidget::North);
 
@@ -2977,7 +3021,7 @@ void MainWindow::breakAllActions()
 	a_stop_sdsp->setEnabled(true);
 	a_stop_sdsp->setChecked(false);
 
-	emit sdsp_is_enabled(true);			
+	if (current_tool.type == "KMRK") emit sdsp_is_enabled(true);			
 	sdsp_widget->adjustmentWasStarted(false);
 
 	expScheduler->stop();
@@ -3023,7 +3067,7 @@ void MainWindow::setCmdResult(uint8_t cmd, ConnectionState state)
 
 			ui->a_COMPort->setEnabled(false);
 
-			emit sdsp_is_enabled(true);
+			if (current_tool.type == "KMRK") emit sdsp_is_enabled(true);
 		}
 		else  
 		{
@@ -3090,7 +3134,7 @@ void MainWindow::setCmdResult(uint8_t cmd, ConnectionState state)
 
 			setSequenceStatus(Seq_Appl_Failed);
 
-			emit sdsp_is_enabled(true);
+			if (current_tool.type == "KMRK") emit sdsp_is_enabled(true);
 		}
 		break;
 	case NMRTOOL_STOP:
@@ -3118,7 +3162,7 @@ void MainWindow::setCmdResult(uint8_t cmd, ConnectionState state)
 			a_stop_sdsp->setEnabled(true);
 			a_stop_sdsp->setChecked(false);
 
-			emit sdsp_is_enabled(true);			
+			if (current_tool.type == "KMRK") emit sdsp_is_enabled(true);			
 			sdsp_widget->adjustmentWasStarted(false);
 		}
 		else
@@ -3343,6 +3387,9 @@ void MainWindow::treatNewData(DeviceData *device_data)
 		case DT_TU_T:				ds_name_base = "TU_T#%1"; break;
 		case DT_PU:					ds_name_base = "telemetry_PU#%1"; break;
 		case DT_PU_T:				ds_name_base = "PU_T#%1"; break;
+		case DT_PRESS_UNIT:			ds_name_base = "press_unit#%1"; break;
+		case DT_T:					ds_name_base = "Temperature#%1"; break;
+		case DT_U:					ds_name_base = "Voltage#%1"; break;
 
 		default: ds_name_base = "unknown_data#%1"; break;
 		}
@@ -4571,6 +4618,113 @@ void MainWindow::treatNewData(DeviceData *device_data)
 
 				break;
 			}			
+		case DT_PRESS_UNIT:
+			{
+				int full_size = 0;
+				int data_index = 0;
+				
+				for (int j = 0; j < y_data->size(); j++) 
+				{				
+					full_size++;
+					float val = fields->at(i)->value->at(j);
+					uint32_t *b = (uint32_t*)(&val);
+					uint32_t bb = *b;
+					if (bb == 0xffffffff) gap_map.data()[j] = BAD_DATA;
+					else gap_map.data()[j] = DATA_OK;
+										
+					x_data_full.data()[j] = j+1;
+
+					if (bad_map->at(j) == DATA_OK)
+					{
+						*(x_data->data()+data_index) = j+1;
+						*(y_data->data()+data_index) = fields->at(i)->value->at(j);
+						data_index++;
+					}
+					else gap_map.data()[j] = BAD_DATA;
+				}
+				x_data->resize(data_index);
+				y_data->resize(data_index);
+
+				static int num_data = 0;
+				DataSet *ds = new DataSet(ds_name_base.arg(channel_data_id).arg(++num_data), msg_uid, comm_id, x_data, y_data, bad_map);
+				ds->setInitialDataSize(full_size);
+				ds->setChannelId(channel_data_id);
+				//double x_displ = getDepthDisplacement(comm_id, tool_channels);
+				double x_displ = getDepthDisplacement(channel_data_id, tool_channels);
+				QPair<bool,double> dpt = depthTemplate->getDepthData(); //depthMonitor->getDepthData();
+				dpt.second = dpt.second + x_displ;
+				ds->setDepth(dpt);
+				ds->setExpId(experiment_id);
+				QPair<int,int> key = QPair<int,int>(comm_id,channel_data_id);
+				if (data_num_generator.contains(key))
+				{							
+					int last_data_num = data_num_generator[key];							
+					ds->setDataNum(last_data_num+1);
+					data_num_generator[key] = last_data_num+1;
+				}
+				else data_num_generator[key] = 1;
+				ds->setDataNum(data_num_generator[key]);
+
+				dss.append(ds);
+				gap_list.append(gap_map);
+				full_xdata_list.append(x_data_full);
+
+				break;
+			}
+		case DT_T:
+		case DT_U:
+			{
+				// построение данных мониторинга температуры...
+				int full_size = 0;
+				int data_index = 0;
+				QDateTime cur_dtime = QDateTime::currentDateTime(); 
+				for (int j = 0; j < x_data->size(); j++) 
+				{			
+					full_size++;
+					float val = fields->at(i)->value->at(j);
+					uint32_t *b = (uint32_t*)(&val);
+					uint32_t bb = *b;
+					if (bb == 0xffffffff) gap_map.data()[j] = BAD_DATA;
+					else gap_map.data()[j] = DATA_OK;
+
+					bool ok = false;
+					x_data_full.data()[j] = (double)cur_dtime.toTime_t();
+
+					if (bad_map->at(j) == DATA_OK)
+					{
+						double y = fields->at(i)->value->at(j);
+						*(x_data->data()+data_index) = (double)cur_dtime.toTime_t();						
+						*(y_data->data()+data_index) = y;
+						data_index++;
+					}
+					else gap_map.data()[j] = BAD_DATA;
+				}
+				x_data->resize(data_index);
+				y_data->resize(data_index);
+
+				static int num_data = 0;
+				DataSet *ds = new DataSet(ds_name_base.arg(++num_data), msg_uid, comm_id, x_data, y_data, bad_map);
+				ds->setInitialDataSize(full_size);
+				double x_displ = getDepthDisplacement(channel_data_id, tool_channels); 
+				QPair<bool,double> dpt = depthTemplate->getDepthData();
+				dpt.second = dpt.second + x_displ;
+				ds->setDepth(dpt);
+				ds->setExpId(experiment_id);
+				QPair<int,int> key = QPair<int,int>(comm_id,channel_data_id);
+				if (data_num_generator.contains(key))
+				{							
+					int last_data_num = data_num_generator[key];						
+					data_num_generator[key] = last_data_num+1;
+				}
+				else data_num_generator[key] = 1;
+				ds->setDataNum(data_num_generator[key]);
+
+				dss.append(ds);
+				gap_list.append(gap_map);
+				full_xdata_list.append(x_data_full);
+
+				break;
+			}		
 		default: break;
 		}		
 	}		
@@ -4578,6 +4732,7 @@ void MainWindow::treatNewData(DeviceData *device_data)
 	calcT2Spectra(forT2spec_dss);
 
 	plotData(dss);
+	plotData2(dss);
 	plotLoggingData(dss);
 	exportData(dss, gap_list, full_xdata_list);
 
@@ -6061,12 +6216,51 @@ void MainWindow::plotData(DataSets &_dss)
 		case DT_TU_T:
 		case DT_PU_T:
 			{
-				monitoring_widget->addData(comm_id, x_data, y_data);
+				QPair<bool,double> dpt = ds->getDepth();
+				monitoring_widget->addData(comm_id, ds->getDataName(), dpt, x_data, y_data);
 				break;
 			}
 		case DT_DIEL_ADJUST:
 			{
 				sdsp_widget->addData(ds->getXData(), ds->getYData());
+				break;
+			}
+		case DT_PRESS_UNIT:
+			{
+				pressUnit->setData(ds->getYData());
+				break;
+			}
+		default: break;
+		}		
+	}	
+}
+
+void MainWindow::plotData2(DataSets &_dss)
+{
+	//if (nmrtool_state) return;
+	if (_dss.count() == 0) return;		
+
+	for (int i = 0; i < _dss.count(); i++)
+	{
+		DataSet *ds = _dss[i];
+		QVector<double> *y_data = ds->getYData();
+		QVector<double> *x_data = ds->getXData();
+		QPair<bool,double> dpt = ds->getDepth();
+		QString ds_name = ds->getDataName();
+		//QVector<uint8_t> *bad_map = ds->getBadData();	
+
+		uint8_t comm_id = ds->getDataCode();
+		switch (comm_id)
+		{
+		case DT_T:
+		case DT_U:
+			{
+				monitoring_widget->addData(comm_id, ds_name, dpt, x_data, y_data);
+				break;
+			}	
+		case DT_PRESS_UNIT:
+			{
+				pressUnit->setData(ds->getYData());
 				break;
 			}
 		default: break;

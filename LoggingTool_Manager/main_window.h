@@ -23,7 +23,7 @@
 #include "Wizards/nmrtool_status_wizard.h"
 #include "Wizards/rxtx_control_wizard.h"
 #include "Wizards/rfpulse_control_wizard.h"
-#include "Wizards/monitoring_wizard.h"
+#include "Wizards/monitoring_wizard_exp1.h"
 #include "Wizards/sdsp_wizard.h"
 #include "Wizards/logging_widget.h"
 #include "Wizards/freq_autoadjust_wizard.h"
@@ -95,6 +95,7 @@ private:
 
 	void addToDataSets(DataSet *ds) { dataset_storage->push_back(ds); }
 	void plotData(DataSets &_dss);	
+	void plotData2(DataSets &_dss);
 	void plotLoggingData(DataSets &_dss);
 	void exportData(DataSets &dss, QList<QVector<uint8_t> > &gap, QList<QVector<double> > &full_xdata);		
 	void prepareDataForNet(DataSets dss, QString &out_str);
